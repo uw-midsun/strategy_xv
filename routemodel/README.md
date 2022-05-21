@@ -18,9 +18,7 @@ Connects and receives responses from Bing Maps APIs to form route / navigation a
 
 Information on routes, previous and prospective.
 
-+ ASC2021: Prospective, Santa Fe trail investigation
-+ ASC2018
-+ Heartland: Prospective, FSGP 2021 location
++ See https://github.com/uw-midsun/strategy/tree/master/routemodel/routes for previous route data
 
 ### Tests Module
 

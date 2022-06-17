@@ -127,8 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-<<<<<<< Updated upstream
-=======
 
 # PyCharm settings
 .idea/
@@ -136,4 +134,3 @@ dmypy.json
 # ignore following project files
 /routemodel/data_retrieval/config.py
 /database/strategy.db
->>>>>>> Stashed changes

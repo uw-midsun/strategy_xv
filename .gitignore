@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# PyCharm settings
+.idea/
+
+# ignore following project files
+/routemodel/data_retrieval/config.py
+/database/strategy.db

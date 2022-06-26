@@ -1,9 +1,12 @@
+import sqlite3
+import pandas
 import requests
 import sys
 import os.path
 
 from config import BASE_URL, API_KEY
 
+con = sqlite3.connect('../../database/strategy.db')
 sys.path.append(os.path.dirname(__file__))
 
 
@@ -30,5 +33,10 @@ def get_API_data(query: str):
 
 
 # TODO: build a common SQLite connection/insert function
-def insert_into_sqlite(data: dict, table: str, database: str):
-    return
+def insert_into_sqlite(data: pandas.DataFrame, table: str, connection: sqlite3.Connection):
+    rows_added = 0
+    try:
+        rows_added = data.to_sql(table, connection, if_exists="append")
+    except ValueError as err:
+        print("An error occurred:", err)
+    return rows_added

@@ -27,11 +27,9 @@ Or if you are on Windows and do not have WSL set up, run the following command o
 ### Project setup
 Once the above is all completed, clone this repository using git. If you do not have Git installed, download it [here](https://git-scm.com/).
 
-If you've never used git before, don't worry! It's not all that scary... mostly...
+If you've never used git before, don't worry! It's not all that scary... mostly... here's a [nice tutorial](https://githowto.com/) you can refer to. 
 
-Here's a [nice tutorial](https://githowto.com/) to go through. 
-
-Cloning the repository will give a new folder named `strategy_xv`, same as the name you see on the repository above.
+Cloning the repository will create a new folder named `strategy_xv` with all the code -- you will have 'cloned' the repository!
 
 Once cloned, run `cd strategy_xv` to go into the new folder. 
 
@@ -39,4 +37,4 @@ Then, to install the project dependencies, run `poetry install` -- this will ins
 
 To 'activate' the new virtual environment -- which you would want to do if you are running your code in your terminal -- run `poetry shell`. You must be in the `strategy_xv` folder to be able to activate it.
 
-If you run code from your code editor (e.g. VS Code, PyCharm, etc), there should be some documentation on how to connect the editor to the Poetry virtual environment to run your code.
+If you run code from your code editor (e.g. VS Code, PyCharm, etc), there should be some documentation from the relevant sources on how to connect the editor to the Poetry virtual environment to run your code.

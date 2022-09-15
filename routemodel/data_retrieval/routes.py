@@ -1,8 +1,11 @@
 import pandas as pd
 import sys
 import os.path
-sys.path.append(os.path.dirname(__file__))
+
 from datetime import datetime, timedelta
+
+sys.path.append(os.path.dirname(__file__))
+
 
 def build_routes_points(waypoints: list, viawaypoints: list):
     """
@@ -22,20 +25,21 @@ def build_routes_points(waypoints: list, viawaypoints: list):
     params = str()
     for index, waypoint in enumerate(waypoints):
         for key, value in waypoint.items():
-            params += 'wp.{}={},{}&'.format(counter, 
+            params += 'wp.{}={},{}&'.format(counter,
                                             key,
                                             value)
             counter += 1
         if index < len(waypoints) - 1:
             for key, value in viawaypoints[index].items():
-                    params += 'vwp.{}={},{}&'.format(counter, 
-                                                     key, 
-                                                     value)
-                    counter += 1
-         
+                params += 'vwp.{}={},{}&'.format(counter,
+                                                 key,
+                                                 value)
+                counter += 1
+
     return params
 
-def format_routes_query(points: str, route_attrs = 'routePath', dist_unit = 'km'):
+
+def format_routes_query(points: str, route_attrs='routePath', dist_unit='km'):
     """
     Getting navigation data response from Bing Maps API.
     @param points: string of points formatted for requesting from Bing Maps API.
@@ -60,11 +64,12 @@ def format_routes_query(points: str, route_attrs = 'routePath', dist_unit = 'km'
 
     # add coordinates, route attribute option, distance unit, and API key
     # to url to be requested
-    query += '{}routeAttributes={}&distanceUnit={}'.format(points, 
+    query += '{}routeAttributes={}&distanceUnit={}'.format(points,
                                                            route_attrs,
                                                            dist_unit)
-    
-    return query  
+
+    return query
+
 
 def parse_routing_data(response: dict):
     """
@@ -78,7 +83,7 @@ def parse_routing_data(response: dict):
         - Direction
         - Street
     """
-    route = response    # headers are for csv, create DataFrame to write data into
+    route = response  # headers are for csv, create DataFrame to write data into
     headers = ['Latitude', 'Longitude', 'Maneuver Instruction', 'Distance to Maneuver', 'Direction', 'Street']
     route_df = pd.DataFrame(columns=headers)
 
@@ -87,35 +92,36 @@ def parse_routing_data(response: dict):
         for route_leg in route['resourceSets'][0]['resources'][0]['routeLegs']:
             # parse through the items in each route leg
             for item in route_leg['itineraryItems']:
-                    # relevant info parsed below
-                    lat = item['maneuverPoint']['coordinates'][0]
-                    longit = item['maneuverPoint']['coordinates'][1]
-                    instruction = item['instruction']['text']
-                    dist = item['travelDistance']
-                    direction = item['compassDirection']
+                # relevant info parsed below
+                lat = item['maneuverPoint']['coordinates'][0]
+                longit = item['maneuverPoint']['coordinates'][1]
+                instruction = item['instruction']['text']
+                dist = item['travelDistance']
+                direction = item['compassDirection']
 
-                    # ensure street name is found
-                    if len(item['details']) > 1:
-                        street = item['details'][1].get('names')[0]
-                    else:
-                        street = item['details'][0].get('names')[0]
-                    
-                    # append data into dataframe
-                    route_df = route_df.append({'Latitude': lat, 
-                                                'Longitude': longit, 
-                                                'Maneuver Instruction': instruction, 
-                                                'Distance to Maneuver': dist, 
-                                                'Direction': direction, 
-                                                'Street': street}, 
-                                                ignore_index = True)
+                # ensure street name is found
+                if len(item['details']) > 1:
+                    street = item['details'][1].get('names')[0]
+                else:
+                    street = item['details'][0].get('names')[0]
+
+                # append data into dataframe
+                route_df = route_df.append({'Latitude': lat,
+                                            'Longitude': longit,
+                                            'Maneuver Instruction': instruction,
+                                            'Distance to Maneuver': dist,
+                                            'Direction': direction,
+                                            'Street': street},
+                                           ignore_index=True)
     except Exception as error:
         print(f'An error occurred: {error}')
         sys.exit()
     return route_df
 
+
 def time_to(speeds: list, route_df: pd.DataFrame, start_time: datetime):
-    '''
-    @param speeds: list of speeds car travels at. Accepts length 1 or same as number of df rows. 
+    """
+    @param speeds: list of speeds car travels at. Accepts length 1 or same as number of df rows.
         Expected to be in equivalent unit as dist_unit in `format_routes_query`
     @param route_df: Pandas Dataframe object. Expects column of 'Distance to Maneuver'
     @param start_time: DateTime object, expressing the first row's start time
@@ -124,7 +130,7 @@ def time_to(speeds: list, route_df: pd.DataFrame, start_time: datetime):
         'Speed': Speed at which car travels in segment
         'Elapsed Time': Time (in hours) needed to travel segment based on given speed
         'Start Timestamp': Expected start time of segment based on speed and distance to travel
-    '''
+    """
 
     if len(speeds) == 1:
         route_df['Speed'] = speeds[0]
@@ -134,10 +140,10 @@ def time_to(speeds: list, route_df: pd.DataFrame, start_time: datetime):
         raise ValueError("Incorrect speeds list length")
 
     route_df['Elapsed Time'] = route_df['Distance to Maneuver'] / route_df['Speed']
-    
+
     timestamps = [start_time]
     timestamps.extend([timestamps[-1] + timedelta(hours=time) \
-        for time in route_df['Elapsed Time'][:-1]])
-    route_df['Start Timestamp'] = pd.Series(timestamps) 
+                       for time in route_df['Elapsed Time'][:-1]])
+    route_df['Start Timestamp'] = pd.Series(timestamps)
 
     return route_df

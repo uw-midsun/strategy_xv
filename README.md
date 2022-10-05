@@ -38,3 +38,7 @@ Then, to install the project dependencies, run `poetry install` -- this will ins
 To 'activate' the new virtual environment -- which you would want to do if you are running your code in your terminal -- run `poetry shell`. You must be in the `strategy_xv` folder to be able to activate it.
 
 If you run code from your code editor (e.g. VS Code, PyCharm, etc), there should be some documentation from the relevant sources on how to connect the editor to the Poetry virtual environment to run your code.
+
+### Contributing
+
+Please add the ticket number to your commit and include some sort of tests based on `pytest` in the `tests` folder of the related project. If the folder is not created, please create it and then add the tests. Check that those pass by running `pytest`. 

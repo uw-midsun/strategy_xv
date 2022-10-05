@@ -5,7 +5,8 @@ description = "Calculating how to run the optimal race for Midnight Sun"
 authors = ["uw-midsun"]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8,<3.12"
+scipy = "^1.9.1"
 
 [tool.poetry.dev-dependencies]
 pandas = "^1.4.2"

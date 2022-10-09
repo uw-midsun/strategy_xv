@@ -42,3 +42,5 @@ If you run code from your code editor (e.g. VS Code, PyCharm, etc), there should
 ### Contributing
 
 Please add the ticket number to your commit and include some sort of tests based on `pytest` in the `tests` folder of the related project. If the folder is not created, please create it and then add the tests. Check that those pass by running `pytest`. 
+
+Please put the issue key in the commits and branches for pull request to connect the pull request to the related ticket on JIRA. 

@@ -3,6 +3,7 @@ import os.path
 sys.path.append(os.path.dirname(sys.path[0]))
 
 import pytest
+import pandas as pd
 from elevations.elevations import RouteElevation
 
 
@@ -134,3 +135,42 @@ def test_get_elevation_index_4_to_5():
     correct_elevation = [190, 184, 187, 187, 194, 196, 203, 204, 222, 220, 220, 206, 202, 205, 207]
     assert distance == correct_distance
     assert elevation == correct_elevation
+
+
+def test_get_dataframe_all():
+    data = route.get_dataframe()
+    correct_distance = [
+        0, 470, 940, 1410, 1880, 2351, 2821, 3291, 3761, 4231, 4702, 5172, 5642, 6112, 6583, 7053, 7525, 7997, 8491, 
+        8984, 9478, 9972, 10466, 10959, 11453, 11947, 12359, 12771, 13267, 13764, 14260, 14757, 15253, 15750, 16246, 
+        16742, 17239, 17735, 18232, 18728, 19225, 19721
+        ]
+    correct_elevation = [
+        195, 186, 184, 187, 188, 183, 191, 186, 183, 184, 181, 184, 186, 185, 199, 207, 187, 183, 180, 180, 181, 182, 
+        203, 194, 191, 189, 189, 190, 184, 187, 187, 194, 196, 203, 204, 222, 220, 220, 206, 202, 205, 207
+        ]
+    correct_dataframe = pd.DataFrame({"distance":correct_distance, "elevation":correct_elevation})
+    pd.testing.assert_frame_equal(data, correct_dataframe)
+
+
+def test_get_dataframe_index_0_to_3():
+    data = route.get_dataframe(0,3)
+    correct_distance = [
+        0, 470, 940, 1410, 1880, 2351, 2821, 3291, 3761, 4231, 4702, 5172, 5642, 6112, 6583, 7053, 7525, 7997, 
+        8491, 8984, 9478, 9972, 10466, 10959, 11453, 11947
+        ]
+    correct_elevation = [
+        195, 186, 184, 187, 188, 183, 191, 186, 183, 184, 181, 184, 186, 185, 199, 207, 187, 183, 180, 180,
+        181, 182, 203, 194, 191, 189
+        ]
+    correct_dataframe = pd.DataFrame({"distance":correct_distance, "elevation":correct_elevation})
+    pd.testing.assert_frame_equal(data, correct_dataframe)
+
+
+def test_get_dataframe_index_4_to_5():
+    data = route.get_dataframe(4,5)
+    correct_distance = [
+        12771, 13267, 13764, 14260, 14757, 15253, 15750, 16246, 16742, 17239, 17735, 18232, 18728, 19225, 19721
+        ]
+    correct_elevation = [190, 184, 187, 187, 194, 196, 203, 204, 222, 220, 220, 206, 202, 205, 207]
+    correct_dataframe = pd.DataFrame({"distance":correct_distance, "elevation":correct_elevation})
+    pd.testing.assert_frame_equal(data, correct_dataframe)

@@ -2,6 +2,7 @@ from geopy import distance as calc_distance
 import requests
 import json
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 
@@ -129,8 +130,9 @@ class RouteElevation():
         @param sample_frequency_distances_between_coordinates: List of tuples where the tuple[0] represents the number of points used (tuple[0]-1 represents 
             the number of intervals) and tuple[1] represents the interval distance (distance between polyline points). The i-th element/tuple in the list 
             represents the data for between coordinates n and n+1
-        @return: Returns a list of lists, where the "inner" lists represent the elevations between 2 adjacent coordinates using the desired number of 
-            intervals between the said coordinates. The i-th entry represents 
+        @return: Returns a list of lists, where the "inner" lists represent the elevations between 2 adjacent 
+            coordinates using the desired number of intervals between the said coordinates. The i-th entry represents the elevations between 
+            coordinate[i] and coordinate[i+1]
         """
         BING_MAPS_API_KEY = self.BING_MAPS_API_KEY
 
@@ -183,7 +185,8 @@ class RouteElevation():
         """
         Builds the y-values that represents the elevations 
         @param elevation_data_between_coordinate_pairs: Returns a list of lists, where the "inner" lists represent the elevations between 2 adjacent 
-            coordinates using the desired number of intervals between the said coordinates. The i-th entry represents 
+            coordinates using the desired number of intervals between the said coordinates. The i-th entry represents the elevations between 
+            coordinate[i] and coordinate[i+1]
         @return: List of numbers that represents the y-values that are to be plotted/used
         """
         y_axis_elevations = []
@@ -279,6 +282,22 @@ class RouteElevation():
                 start_index += sample_distances_between_coordinates[i][0]
 
             return x_axis_distance[start_index:end_index+1], y_axis_elevations[start_index:end_index+1]
+
+
+
+    def get_dataframe(self, start_point: int = None, end_point: int = None):
+        """
+        Builds the distance and elevation values in a dataframe for the user to use
+            - If both params are None, returns a dataframe with all the distances and elevations
+        @param start_point (optional): The starting coordinate to start getting elevations from
+        @param end_point (optional): The ending coordinate to stop getting elevations from
+        @return: dataframe where each row represents the distance and its associated elevation
+        """
+        distances, elevations = self.get_elevations(start_point, end_point)
+        return pd.DataFrame({
+            "distance": distances,
+            "elevation": elevations
+        })
                 
 
 

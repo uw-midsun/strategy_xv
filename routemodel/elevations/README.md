@@ -16,6 +16,7 @@ When using this, there are only 3 things that you need to know:
 
 - The object initialization
 - The `get_elevations()` method
+- The `get_dataframe()` method
 - The `plot_elevations()` method
 
 ### The object initialization
@@ -36,6 +37,9 @@ This method returns the distance and the elevation of a route in 2 seperate arra
 
 This method can take 0 or 2 parameters. If there are no parameters, the method will return all the distances and their associated elevations of the route. In the case of having 2 parameters, `start_point` and `end_point`, they will represent the start and end coordinates that you want to get elevations from (0-indexed). This means that the method will return you all the elevations starting from `start_point` to `end_point` (inclusive)
 
+### The `get_dataframe()` method
+This has the exact same functionality as the `get_elevations` method, but returns it as a Pandas DataFrame
+
 ### The `plot_elevations()` method
 This method is similar to the `get_elevations()` method, but plots a graph rather than returning data.
 
@@ -49,19 +53,19 @@ Similarly to `get_elevations()`, this method can take 0 or 2 parameters. If ther
 
 Let's say I want to measure the route from McDonalds (bottom left) to Penville (top left). The black route (shown below) would be the polygonal chain representation of our route that we wish to get elevations for.
 
-<!-- ![](./assets/tutorial_1.png) -->
+![](./assets/tutorial_1.png)
 
-First, we will need get all 6 coordinates:
+### First, we will need get all 6 coordinates:
 ```
 coordinates = [(44.0104111274582, -79.67866520101909), (44.028996763626, -79.59455210533561), (44.037352902093524, -79.596693165953), (44.067688969642624, -79.62238589336177), (44.07494094439971, -79.62452695397917), (44.05647962446555, -79.70741658645272)]
 ```
 
-Next, we create a RouteElevation object using our coordinates:
+### Next, we create a RouteElevation object using our coordinates:
 ```
 route = RouteElevation(coordinates=coordinates, BING_MAPS_API_KEY=BING_MAPS_API_KEY, sample_frequency_upper_bound=1000, offset=0, debug=False)
 ```
 
-We can get the elvations of our route:
+### We can get the elvations of our route:
 ```
 distance, elevation = route.get_elevations() # All distances and elevations
 print(distance, elevation)
@@ -82,7 +86,72 @@ OUTPUT
 [12771, 13764, 14756, 15749, 16742, 17735, 18728, 19721] [190, 187, 194, 203, 222, 220, 202, 207]
 ```
 
-Lastly, we can plot the elvations of our route:
+### We can get the elvations of our route as a Pandas Dataframe:
+```
+data = route.get_dataframe() # All distances and elevations
+print(data)
+
+data = route.get_dataframe(0,3) # Distances and elevations from coordinate 0 to coordinate 3 (inclusive)
+print(data)
+
+data = route.get_dataframe(4,5) # Distances and elevations from coordinate 4 to coordinate 5 (inclusive)
+print(data)
+```
+```
+OUTPUT
+
+    distance  elevation
+0          0        195
+1        881        186
+2       1763        189
+3       2644        188
+4       3526        185
+5       4408        184
+6       5289        182
+7       6171        185
+8       7053        207
+9       7997        183
+10      8984        180
+11      9972        182
+12     10959        194
+13     11947        189
+14     12771        190
+15     13764        187
+16     14756        194
+17     15749        203
+18     16742        222
+19     17735        220
+20     18728        202
+21     19721        207
+
+    distance  elevation
+0          0        195
+1        881        186
+2       1763        189
+3       2644        188
+4       3526        185
+5       4408        184
+6       5289        182
+7       6171        185
+8       7053        207
+9       7997        183
+10      8984        180
+11      9972        182
+12     10959        194
+13     11947        189
+
+    distance  elevation
+0     12771        190
+1     13764        187
+2     14756        194
+3     15749        203
+4     16742        222
+5     17735        220
+6     18728        202
+7     19721        207
+```
+
+### Lastly, we can plot the elvations of our route:
 ```
 route.plot_elevations() # Plots all distances and elevations
 

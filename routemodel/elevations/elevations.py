@@ -369,6 +369,7 @@ class CoordinateElevation():
     def compress_coordinates(self, coordinates: list):
         """
         Compresses all the coordinates into 1 compressed query string for Bing Maps API. This allows for 1 single API call
+            - https://learn.microsoft.com/en-us/bingmaps/rest-services/elevations/point-compression-algorithm
         @param coordinates: List of (lat, long) coordinate tuples which represents the route
         @return: Compressed query string that represents all the coordinates
         """

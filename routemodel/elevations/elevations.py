@@ -6,6 +6,8 @@ import pandas as pd
 
 
 
+
+
 class RouteElevation():
     def __init__(self, coordinates: list, BING_MAPS_API_KEY: str, sample_frequency_upper_bound: int = 1000, offset: int = 0, debug: bool = False):
         """
@@ -328,6 +330,173 @@ class RouteElevation():
             ax.set_ylabel("Elevation (m)")
             # fig.savefig('elevations.png', bbox_inches='tight')
             plt.show()
+
+
+
+
+
+class CoordinateElevation():
+    def __init__(self, coordinates: list, BING_MAPS_API_KEY: str, debug: bool = False):
+        """
+        Initializes a CoordinateElevation object which represents the elevations of each coordinate in coordinates. Builds 
+        the elevation data and stores them
+        @param coordinates: List of (lat, long) coordinate tuples which represents the route
+        @param debug: Set to True if want object to print data upon each step of the algorithm (for debugging purposes). Else, False
+        @return: CoordinateElevation object
+        """
+        self._coordinates = coordinates
+        self._number_of_coordinates = len(coordinates)
+
+        self._debug = debug
+        self._compressed_coordinates = None
+        self._elevation_data = None
+
+        self.BING_MAPS_API_KEY = BING_MAPS_API_KEY
+        self.build_elevations()
+
+
+
+    def build_elevations(self):
+        """
+        Builds the elevation data and stores them in the class object. This method is ran upon object initialization.
+        - Step-by-step process of what the algorithm is doing under the hood
+        """
+        self._compressed_coordinates = self.compress_coordinates(self._coordinates)
+        self._elevation_data = self.build_elevation_data(self._compressed_coordinates)
+
+
+
+    def compress_coordinates(self, coordinates: list):
+        """
+        Compresses all the coordinates into 1 compressed query string for Bing Maps API. This allows for 1 single API call
+        @param coordinates: List of (lat, long) coordinate tuples which represents the route
+        @return: Compressed query string that represents all the coordinates
+        """
+        latitude = 0
+        longitude = 0
+        compressed_coordinates = ""
+
+        for coordinate in coordinates:
+            newLatitude = round(coordinate[0] * 100000)
+            newLongitude = round(coordinate[1] * 100000)
+
+            dy = newLatitude - latitude
+            dx = newLongitude - longitude
+            latitude = newLatitude
+            longitude = newLongitude
+
+            dy = (dy << 1) ^ (dy >> 31)
+            dx = (dx << 1) ^ (dx >> 31)
+
+            index = int(((dy + dx) * (dy + dx + 1) / 2) + dy)
+            while index > 0:
+                rem = index & 31
+                index = int((index - rem) / 32)
+                if index > 0:
+                    rem += 32
+                compressed_coordinates += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"[rem]
+
+        if self._debug == True:
+            print("\n-> Compressed Coordinates\n", compressed_coordinates)
+
+        return compressed_coordinates
+
+
+
+    def build_elevation_data(self, compressed_coordinates: str):
+        """
+        Requests the elevation for all the coordinates using our compressed coordinate query string
+        @param compressed_coordinates: Compressed query string that represents all the coordinates
+        @return: Returns a list of integers, where the i-th entry represents the elevation for the i-th coordinates
+        """
+        BING_MAPS_API_KEY = self.BING_MAPS_API_KEY
+
+        API_query_string = f"http://dev.virtualearth.net/REST/v1/Elevation/List?points={compressed_coordinates}&heights=ellipsoid&key={BING_MAPS_API_KEY}"
+        response = requests.post(API_query_string).json()
+
+        if response["statusCode"] != 200:
+            print("\n-> API Response\n", json.dumps(response, indent=2))
+            raise ValueError(f"Bing Maps API request error {response['statusCode']}: {response['statusDescription']}")
+
+        coordinates_elevations_data = response["resourceSets"][0]["resources"][0]["elevations"]
+        zoom_level = response["resourceSets"][0]["resources"][0]["zoomLevel"]
+
+        if self._debug == True:
+            print("\n-> Elevation data each each coordinate\n", coordinates_elevations_data)
+            print("\n-> Zoom Level\n", zoom_level)
+
+        return coordinates_elevations_data
+
+
+
+    def get_elevations(self, start_point: int = None, end_point: int = None):
+        """
+        Builds the coordinate and elevation values for the user to use
+            - If both params are None, returns all the distances and elevations for all the coordinates
+        @param start_point (optional): The starting coordinate index to start getting elevations from
+        @param end_point (optional): The ending coordinate index to stop getting elevations from
+        @return: List of coordinates from start_point to end_point
+        @return: List of numbers that represents coordinate elevations from start_point to end_point
+        """
+        coordinates = self._coordinates
+        elevation_data = self._elevation_data
+        points = [*filter(lambda point: point is not None, [start_point, end_point])]
+
+        if (len(points) != 0 and len(points) != 2):
+            raise ValueError("get_elevations requires 0 or 2 parameters: start_point and end_point (0-indexed)")
+
+        if len(points) == 0:
+            return coordinates, elevation_data
+
+        if len(points) == 2:
+            assert 0 <= start_point, "start_point must be greater than or equal to 0"
+            assert end_point <= self._number_of_coordinates - 1, f"end_point must be less than {self._number_of_coordinates}"
+            assert start_point < end_point, "start_point must be less than end_point"
+            start_point, end_point = points
+
+            return coordinates[start_point:end_point+1], elevation_data[start_point:end_point+1]
+
+
+
+    def get_dataframe(self, start_point: int = None, end_point: int = None):
+        """
+        Builds the coordinates and elevation values in a dataframe for the user to use
+            - If both params are None, returns a dataframe with all the coordinates and elevations
+        @param start_point (optional): The starting coordinate index to start getting elevations from
+        @param end_point (optional): The ending coordinate index to stop getting elevations from
+        @return: dataframe where each row represents the coordinate and its associated elevation
+        """
+        coordinates, elevations = self.get_elevations(start_point, end_point)
+        zip_coordinates = list(zip(*coordinates))
+        latitude = zip_coordinates[0]
+        longitude = zip_coordinates[1]
+
+        return pd.DataFrame({
+            "latitude": latitude,
+            "longitude": longitude,
+            "elevation":elevations
+        })
+
+
+
+    def plot_elevations(self, start_point: int = None, end_point: int = None):
+        """
+        Plots the coordinate index and elevation values for the user
+            - If both params are None, plots all the distances and elevations for all the coordinates
+        @param start_point (optional): The starting coordinate index to start getting elevations from
+        @param end_point (optional): The ending coordinate index to stop getting elevations from
+        """
+        coordinates, elevations = self.get_elevations(start_point, end_point)
+        fig, ax = plt.subplots()
+        ax.plot(elevations)
+        ax.set_title(f"Route Elevation from point {start_point} to {end_point} ({len(elevations)} datapoints)")
+        ax.set_xlabel("Coordinate Index")
+        ax.set_ylabel("Elevation (m)")
+        ax.set_xticks(range(len(elevations)))
+        # fig.savefig('elevations.png', bbox_inches='tight')
+        plt.show()
+
+
 
 
 

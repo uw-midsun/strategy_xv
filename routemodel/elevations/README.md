@@ -1,6 +1,14 @@
+# RouteElevation & CoordinateElevation
+
+**Use RouteElevation when you have a route and you would like to let the algorithm automatically sample elevations in between coordinates. Use CoordinateElevation when you only want the elevations for your (exact) coordinate inputs.** 
+
+**This is because RouteElevation does _n_ API calls where _n_=number of coordinates (because it needs to automatically sample elevations in between coordinates). CoordinateElevation does not automatically sample elevations in between coordinates so it only uses 1 API call. Don't use RouteElevation for CoordinateElevation purposes.**
+
+- [RouteElevation](#routeelevation)
+- [CoordinateElevation](#coordinateelevation)
+---
+---
 # RouteElevation
-
-
 ## Introduction
 RouteElevation is a class that calulates and graphs the elevation data of a route that is represented by a [polygonal chain](https://en.wikipedia.org/wiki/Polygonal_chain) (where each vertex on the polygonal chain represents a real-life coordinate).
 
@@ -12,7 +20,7 @@ It is best to add a new vertex whenever the polygonal chain starts to deviate 10
 
 ---
 ## User Guide
-When using this, there are only 3 things that you need to know:
+When using this, there are only 4 things that you need to know:
 
 - The object initialization
 - The `get_elevations()` method
@@ -165,3 +173,46 @@ OUTPUT
 ![](./assets/tutorial_2.png)
 ![](./assets/tutorial_3.png)
 ![](./assets/tutorial_4.png)
+
+---
+---
+
+# CoordinateElevation
+## Introduction
+CoordinateElevation is a class that calulates and graphs the elevation data for a list of coordinates
+
+## User Guide
+When using this, there are only 4 things that you need to know:
+
+- The object initialization
+- The `get_elevations()` method
+- The `get_dataframe()` method
+- The `plot_elevations()` method
+
+### The object initialization
+Initializing the object requires 2 required parameters: `coordinates` and `BING_MAPS_API_KEY`, and 1 optional parameter: `debug`.
+
+- `coordinates` (required): These are the coordinates that you would like to get elevations for. It is of the form `[(Lat1,Long1), (Lat2,Long2)...(LatN,LongN)]` and requires at least 2 coordinates.
+- `BING_MAPS_API_KEY` (required): This string is your API key for Bing Maps
+- `debug` (optional, `default=False`): Set this value to `True` if you want the object to print data upon each step of the algorithm (for debugging purposes). Otherwise, set to `False`
+
+Do not change any class variables after initializing the object. Doing so may break the flow of the algorithm, resulting in an error. Create a new object instead.
+
+### The `get_elevations()` method
+This method returns the coordinates and the elevation of a route in 2 seperate arrays (one for the coordinates and one for the elevation). The `i-th` element in the elevation array represents the elevation for the `i-th` coordinate. 
+
+This method can take 0 or 2 parameters. If there are no parameters, the method will return all the coordinates and their associated elevations of the route. In the case of having 2 parameters, `start_point` and `end_point`, they will represent the start and end coordinates that you want to get elevations from (0-indexed). This means that the method will return you all the elevations starting from `start_point` to `end_point` (inclusive)
+
+### The `get_dataframe()` method
+This has the exact same functionality as the `get_elevations` method, but returns it as a Pandas DataFrame
+
+### The `plot_elevations()` method
+This method is similar to the `get_elevations()` method, but plots a graph rather than returning data.
+
+Similarly to `get_elevations()`, this method can take 0 or 2 parameters. If there are 0 parameters, all elevation data will be plotted. If there are 2 parameters, all elevation data starting from `start_point` to `end_point` (0-indexed and inclusive) will be plotted.
+
+
+---
+## Tutorial
+
+The usage of this class is the exact same as [RouteElevation](#routeelevation) so please see that tutorial instead. Only the type of input/output data is different. The user interface/methods are the exact same

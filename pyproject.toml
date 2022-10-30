@@ -7,6 +7,9 @@ authors = ["uw-midsun"]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 scipy = "^1.9.1"
+pyproj = "^3.4.0"
+pandas = "^1.5.1"
+geopy = "^2.2.0"
 
 [tool.poetry.dev-dependencies]
 pandas = "^1.4.2"

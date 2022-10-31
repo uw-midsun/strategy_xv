@@ -3,7 +3,6 @@ import pandas as pd
 import datetime
 import dateutil
 import json
-from pprint import pprint
 
 import os.path
 from .config import API_KEY
@@ -92,8 +91,6 @@ def get_weather(lat, lon, timestep, forecast_range=""):
     else:
         end_time = "nowPlus{}".format(timestep_forecast_range_dict[timestep])
 
-    # print(end_time)
-
     # Building the URL
     url = FORECAST_URL_BASE + "?"
     url += "location={}%2C%20{}".format(lat, lon)
@@ -108,10 +105,9 @@ def get_weather(lat, lon, timestep, forecast_range=""):
     
     if response.status_code == 200:
         weather_data = response.json()["data"]["timelines"][0]
-        # pprint(weather_data)
         weather_forecast = []
+
         for weather in weather_data["intervals"]:
-            # pprint(weather)
             weather_dict = {
                 'Latitude': lat,
                 'Longitude': lon,
@@ -147,10 +143,3 @@ def get_weather_7d(lat, lon):
 
 def get_weather_14d(lat, lon):
     return get_weather(lat, lon, "1d", "14d")
-
-
-if __name__ == "__main__":
-    waterloo_lat = 43.759838
-    waterloo_lon = -79.411209
-
-    pprint(get_weather_6h(waterloo_lat, waterloo_lon))

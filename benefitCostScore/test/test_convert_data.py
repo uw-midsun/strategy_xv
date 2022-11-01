@@ -12,7 +12,7 @@ def test_loops():
     combined = [79.0, 23, 9, 'N/A', 'N/A', 'N/A', 52.36763616791372, 1.5085653235653254, 'N/A']
 
 
-    pd.testing.assert_frame_equal(convertData(r"benefitCostScore\data\SegmentBLoop.csv"), pd.DataFrame([loopOne], columns=column))
-    pd.testing.assert_frame_equal(convertData(r"benefitCostScore\data\SegmentDLoop.csv"), pd.DataFrame([loopTwo], columns=column))
-    pd.testing.assert_frame_equal(convertData(r"benefitCostScore\data\SegmentELoop.csv"), pd.DataFrame([loopThree], columns=column))
-    pd.testing.assert_frame_equal(convertData(r"benefitCostScore\data\CombinedTest.csv"), pd.DataFrame([combined], columns=column))
+    pd.testing.assert_frame_equal(convertData(r".\data\SegmentBLoop.csv"), pd.DataFrame([loopOne], columns=column))
+    pd.testing.assert_frame_equal(convertData(r".\data\SegmentDLoop.csv"), pd.DataFrame([loopTwo], columns=column))
+    pd.testing.assert_frame_equal(convertData(r".\data\SegmentELoop.csv"), pd.DataFrame([loopThree], columns=column))
+    pd.testing.assert_frame_equal(convertData(r".\data\CombinedTest.csv"), pd.DataFrame([combined], columns=column))

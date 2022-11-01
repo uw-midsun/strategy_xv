@@ -2,6 +2,37 @@ from email import header
 import pandas as pd
 
 
+def numOfTurns(data):
+    '''
+    Number of major turns
+    '''
+    turnCount = 0
+    for instructions in data["Major Turns/Instructions"]:
+        if "left" in instructions.lower() or "right" in instructions.lower() or "turn" in instructions.lower():
+            turnCount += 1
+    return turnCount
+
+def numOfStops(data):
+    '''
+    Determines the number of stops
+    '''
+    stopCount = 0
+    for instructions in data["Major Turns/Instructions"]:
+        if "stop" in instructions.lower() and "***" not in instructions.lower() and "stage stop" not in instructions.lower():
+            stopCount += 1
+    for notes in data["Landmarks/Notes"]:
+        if "stop" in notes.lower() and "***" not in notes.lower() and "not" not in notes.lower():
+            stopCount += 1
+    return stopCount
+
+def totalTimeAndSpeed(data, totalDistance):
+    totalTime = 0
+    for index, row in data.iterrows():
+        totalTime += float(row["Int"]) / float(row["Spd"])
+
+    averageSpeed = totalDistance / totalTime
+    return totalTime, averageSpeed
+
 def convertData(file):
     '''
     This function takes in a csv file in the format of route descriptions on the route book and
@@ -23,9 +54,8 @@ def convertData(file):
             "Level 2 turns (Medium)", "Level 3 Turns (Hard)", "Average Speed", "Estimated Completion Time", "Current Status"]
     
     loopData = []
-
     data.at[0, "Int"] = 0
-
+    
     # Clean speed data 
     prev = 0
     for speed in data['Spd']:
@@ -46,33 +76,21 @@ def convertData(file):
     totalDistance = float(data["Trip"][len(data["Trip"])-1])
     loopData.append(totalDistance)
 
-    # Major Turns
-    turnCount = 0
-    for instructions in data["Major Turns/Instructions"]:
-        if "left" in instructions.lower() or "right" in instructions.lower() or "turn" in instructions.lower():
-            turnCount += 1
+    # Number of turns
+    turnCount = numOfTurns(data)
     loopData.append(turnCount)
 
     # Number of Stops
-    stopCount = 0
-    for instructions in data["Major Turns/Instructions"]:
-        if "stop" in instructions.lower() and "***" not in instructions.lower() and "stage stop" not in instructions.lower():
-            stopCount += 1
-    for notes in data["Landmarks/Notes"]:
-        if "stop" in notes.lower() and "***" not in notes.lower() and "not" not in notes.lower():
-            stopCount += 1
+    stopCount = numOfStops(data)
     loopData.append(stopCount)
 
+    # Placeholder for level of turn
     loopData.append("N/A")
     loopData.append("N/A")
     loopData.append("N/A")
 
     # Calculate time and speed
-    totalTime = 0
-    for index, row in data.iterrows():
-        totalTime += float(row["Int"]) / float(row["Spd"])
-
-    averageSpeed = totalDistance / totalTime
+    totalTime, averageSpeed = totalTimeAndSpeed(data, totalDistance)
     loopData.append(averageSpeed)
     loopData.append(totalTime)
     loopData.append("N/A")

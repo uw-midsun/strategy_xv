@@ -1,6 +1,6 @@
 # RouteModel
 
-**Prerequisite: Read the [RouteModel documentation](https://github.com/uw-midsun/strategy_xv/tree/main/routemodel/elevations) first to understand what a polygonal chain is and how it's used to represent a route** 
+**Prerequisite: Read the [RouteElevation documentation](https://github.com/uw-midsun/strategy_xv/tree/main/routemodel/elevations) first to understand what a polygonal chain is and how it's used to represent a route** 
 
 ---
 ## Introduction

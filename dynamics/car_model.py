@@ -64,11 +64,10 @@ class Car():
         max_v = v_old - self.force_req(v_old, vwind=vwind, theta=theta) + self.max_force * timestep
         return max_v
 
-    def energy_used(self, v_profile, e_profile, distance=100, wind=0):
+    def energy_used(self, v_profile, e_profile, wind=0):
         """
         :param v_profile: a series of velocities in m/s separated by a distance
         :param e_profile: a series of elevations in m separated by a distance
-        :param distance: distance between points in the profiles
         :return energy used: energy used in J for the path and velocity profile
         """
         # Checks if the length of the velocity array is NOT EQUAL TO the length of the elevation array

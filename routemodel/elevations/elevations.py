@@ -377,7 +377,7 @@ class CoordinateElevation():
         @param coordinates: List of (lat, long) coordinate tuples which represents the route
         @return: Compressed query string that represents all the coordinates
         """
-        split_coordinates = [coordinates[i:i+500] for i in range(0, len(coordinates), 500)] # Limit 500 coordinates per request
+        split_coordinates = [coordinates[i:i+10000] for i in range(0, len(coordinates), 10000)] # Limit 10000 coordinates per request. Change limit if there's an API size issue
         compressed_coordinates_lst = []
 
         for coordinate_lst in split_coordinates:
@@ -421,7 +421,7 @@ class CoordinateElevation():
         """
         BING_MAPS_API_KEY = self.BING_MAPS_API_KEY
         coordinates_elevations_data = []
-        for compressed_coordinates in compressed_coordinates_lst: # Limit 500 coordinates per request
+        for compressed_coordinates in compressed_coordinates_lst: # Limit 10000 coordinates per request (See compress_coordinates method)
             API_query_string = f"http://dev.virtualearth.net/REST/v1/Elevation/List?points={compressed_coordinates}&heights=ellipsoid&key={BING_MAPS_API_KEY}"
             response = requests.post(API_query_string).json()
 

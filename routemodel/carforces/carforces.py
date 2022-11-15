@@ -1,6 +1,14 @@
 import numpy as np
 
 
+# Works in progress (WIP) and notes
+# - WIP: Calculate rolling_resistance_coefficient
+# - WIP: Calculate drag_coefficent
+# - WIP: Calculate lift_coefficent
+# - WIP: Better way of finding the applied force (smaller timedelta or calculate using motor force values or something...)
+# - Consider using @lru_cache for some functions?
+# - Air density based on temp, humidity, pressure?
+# - Consider motor efficiency and other efficiencies?
 
 
 """
@@ -20,9 +28,11 @@ Net y force: gravity force (y-direction) + normal force + downforce
 """
 CONSTANTS
 """
-EARTH_GRAVITY = 9.80665 # m/s^2
+EARTH_GRAVITY = 9.80665 # m/s^2, average earth's gravity
 ROLLING_RESISTANCE_COEFFICIENT = 1 # Placeholder value, Dimensionless
 DRAG_COEFFICIENT = 1 # Placeholder value, Dimensionless
+LIFT_COEFFICIENT = 1 # Placeholder value, Dimensionless
+AIR_DENSITY = 1.204 # kg/m^3, Room temperature air density
 
 
 
@@ -70,8 +80,8 @@ def y_force_normal(mass, elevation_angle=0, gravity=EARTH_GRAVITY):
 FRICTIONAL FORCE CALCULATIONS
 """
 
-def rolling_resistance_coefficient():
-    ... # WIP
+def rolling_resistance_coefficient(): # WIP
+    ...
 
 
 def x_force_friction(mass, elevation_angle=0, coef_resistance=ROLLING_RESISTANCE_COEFFICIENT, gravity=EARTH_GRAVITY):
@@ -83,13 +93,13 @@ def x_force_friction(mass, elevation_angle=0, coef_resistance=ROLLING_RESISTANCE
     gravity is the gravitational acceleration on earth
     """
     return coef_resistance * y_force_normal(mass, elevation_angle, gravity)
-print(x_force_friction(10, -4))
+# print(x_force_friction(10, -4))
 
 
 
 
 """
-DRAG FORCE CALCULATIONS (WORK IN PROGRESS)
+DRAG FORCE CALCULATIONS
 """
 
 def velocity_vector(speed, bearing, elevation_angle):
@@ -150,20 +160,43 @@ def velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_w
     unit_vector = velocity_vector_car / np.linalg.norm(velocity_vector_car)
     project_v_wind_onto_v_car = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
 
-    # print(velocity_vector_car.tolist())
-    # print(velocity_vector_wind.tolist())
-    # print(project_v_wind_onto_v_car.tolist())
-    # print((velocity_vector_car + project_v_wind_onto_v_car).tolist())
     return velocity_vector_car + project_v_wind_onto_v_car
-print(velocity_projection(1, 90, -10, 0.5, 45, 45))
+# print(velocity_projection(1, 90, -10, 0.5, 45, 45))
 
 
-def drag_coefficent():
-    ... # WIP
+def drag_coefficent(): # WIP
+    ... 
 
 
-def x_force_drag():
-    ... # WIP
+def x_force_drag(
+    v_car, 
+    v_car_bearing, 
+    v_car_elevation_angle, 
+    v_wind, 
+    v_wind_bearing, 
+    v_wind_elevation_angle, 
+    car_cross_sectional_area,
+    fluid_density=AIR_DENSITY,
+    drag_coefficent=DRAG_COEFFICIENT
+    ):
+    """
+    Calculates the drag force of the car due to the fluid (wind)
+    v_car is the car speed (a magnitude)
+    v_car_bearing is the car direction bearing in degrees (in x-y axis) where 0/360 degrees is North
+    v_car_elevation_angle is the car elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    v_wind is the wind speed (a magnitude)
+    v_wind_bearing is the wind direction bearing in degrees (in x-y axis) where 0/360 degrees is North
+    v_wind_elevation_angle is the wind elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    fluid_density is the fluid density (air density)
+    drag_coefficent is the drag coefficent of the car
+    car_cross_sectional_area is the cross sectional area of the car when looking directly at the front of the car
+    """
+    car_fluid_velocity_vector = velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle)
+    car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
+    
+    drag_force = 0.5 * fluid_density * np.square(car_fluid_velocity_magnitude) * drag_coefficent * car_cross_sectional_area
+    return -1 * drag_force # Change to negative/positive to represent the force direction relative to the car
+# print(x_force_drag(1, 90, -10, 0.5, 45, 45, 100, 1.204, 1))
 
 
 

@@ -108,3 +108,8 @@ class Test_RouteModel():
         relative_turn_angle = self.route._relative_turn_angle
         correct_turn_angle = [None, 22.65037, None]
         self.is_almost_equal(relative_turn_angle, correct_turn_angle)
+
+    def test_get_elevations_list(self):
+        elevations = self.route.get_elevations_list()
+        correct_elevations = [(43.81857948416717,-79.40101625627213), (43.82045746557804, -79.3901457521166), (43.81990512423598, -79.38545051088512)]
+        self.is_almost_equal(elevations, correct_elevations)

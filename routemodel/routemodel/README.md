@@ -14,6 +14,7 @@ When using this, there are only 4 things that you need to know:
 - The `get_data()` method
 - The `get_csv()` method
 - Dataframe values
+- The `get_elevations_list()` method
 
 ### The object initialization
 Initializing the object requires 2 required parameters, `coordinate_lst_input`: a polygonal chain representation of the route, and `interval_upper_bound`: an uppper bound for the distance between coordinates
@@ -37,6 +38,9 @@ Consumes a string, `filename`, and saves a csv of the interpolated route as `<fi
 - `turn_bearing`: Relative turn bearing for car at current coordinate
 - `turn_type`: Type of turn for the car
 - `relative_turn_angle`: Formatted relative turn angle for car at current coordinate
+
+### The `get_elevations_list()` method
+Returns a list of tuples, where each tuple represents a (latitude, longitude) coordinate of the interpolated route
 
 ---
 ## Sample code

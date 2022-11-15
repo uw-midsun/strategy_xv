@@ -293,6 +293,17 @@ class RouteModel():
         data.to_csv(format_filename)
 
 
+    def get_elevations_list(self):
+        """
+        get_elevations_list: gives user a list of all coordinate tuples
+        @return: list of tuples, where each tuple represents a (latitude, longitude) coordinate
+        """
+        data = self.get_data()
+        latitudes = data["latitude"].to_list()
+        longitudes = data["longitude"].to_list()
+        return list(zip(latitudes, longitudes))
+
+
 
 if __name__ == "__main__":
     pass

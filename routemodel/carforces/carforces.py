@@ -7,6 +7,7 @@ from functools import lru_cache
 # - WIP: Calculate drag_coefficent, https://en.wikipedia.org/wiki/Drag_coefficient
 # - WIP: Calculate lift_coefficent, https://en.wikipedia.org/wiki/Lift_coefficient
 # - WIP: Better way of finding the applied force (smaller timedelta or calculate using motor force values or something...)
+# - Refactor code to have them work with velocity vectors (reduces number of calculations and faster execution)
 # - Consider using @lru_cache for some functions?
 # - Air density based on temp, humidity, pressure?
 # - Consider motor efficiency and other efficiencies?
@@ -42,36 +43,36 @@ AIR_DENSITY = 1.204 # kg/m^3, Room temperature air density
 GRAVITATIONAL/NORMAL FORCE CALCULATIONS
 """
 
-def x_force_gravity(mass, elevation_angle=0, gravity=EARTH_GRAVITY): 
+def x_force_gravity(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY): 
     """
     Calculates the force of gravity in the x-direction relative to the car (-ve force is pushing car backward, +ve force is pushing car forward)
-    mass is mass of the car
+    car_mass is mass of the car
     elevation_angle is the elevation_angle of the car relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
     gravity is the gravitational acceleration on earth
     """
-    return -mass * gravity * np.sin(np.radians(elevation_angle))
+    return -car_mass * gravity * np.sin(np.radians(elevation_angle))
 # print(x_force_gravity(10, -4))
 
 
-def y_force_gravity(mass, elevation_angle=0, gravity=EARTH_GRAVITY):
+def y_force_gravity(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     """
     Calculates the force of gravity in the y-direction relative to the car (-ve as force is always pushing down)
-    mass is mass of the car
+    car_mass is mass of the car
     elevation_angle is the elevation_angle of the car relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
     gravity is the gravitational acceleration on earth
     """
-    return -mass * gravity * np.cos(np.radians(elevation_angle))
+    return -car_mass * gravity * np.cos(np.radians(elevation_angle))
 # print(y_force_gravity(10, -4))
 
 
-def y_force_normal(mass, elevation_angle=0, gravity=EARTH_GRAVITY):
+def y_force_normal(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     """
     Calculates the normal in the y-direction relative to the car (+ve as force is always pushing up)
-    mass is mass of the car
+    car_mass is mass of the car
     elevation_angle is the elevation_angle of the car relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
     gravity is the gravitational acceleration on earth
     """
-    return -1 * y_force_gravity(mass, elevation_angle, gravity)
+    return -1 * y_force_gravity(car_mass, elevation_angle, gravity)
 # print(y_force_normal(10, -4))
 
 
@@ -85,15 +86,15 @@ def rolling_resistance_coefficient(): # WIP
     ...
 
 
-def x_force_friction(mass, elevation_angle=0, coef_resistance=ROLLING_RESISTANCE_COEFFICIENT, gravity=EARTH_GRAVITY):
+def x_force_friction(car_mass, elevation_angle=0, coef_resistance=ROLLING_RESISTANCE_COEFFICIENT, gravity=EARTH_GRAVITY):
     """
     Calculates the friction (actually called rolling friction or rolling drag) of the car
-    mass is mass of the car
+    car_mass is mass of the car
     elevation_angle is the elevation_angle of the car relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
     coef_resistance is the rolling resistance coefficient of the car
     gravity is the gravitational acceleration on earth
     """
-    return coef_resistance * y_force_normal(mass, elevation_angle, gravity)
+    return coef_resistance * y_force_normal(car_mass, elevation_angle, gravity)
 # print(x_force_friction(10, -4))
 
 
@@ -241,6 +242,31 @@ def y_force_downforce(
 """
 APPLIED FORCE CALCULATIONS
 """
+
+def x_force_applied(car_mass, vi_car, vi_car_bearing, vi_car_elevation_angle, vf_car, vf_car_bearing, vf_car_elevation_angle, timedelta):
+    """
+    calculate the applied force in the x direction (relative to the car) using f=ma
+    car_mass is mass of the car
+    vi_car is the initial car speed (a magnitude)
+    vi_car_bearing is the initial car direction bearing in degrees (in x-y axis) where 0/360 degrees is North
+    vi_car_elevation_angle is the initial car elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    vf_car is the final car speed (a magnitude)
+    vf_car_bearing is the final car direction bearing in degrees (in x-y axis) where 0/360 degrees is North
+    vf_car_elevation_angle is the final car elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    timedelta is the time difference between the inital and final velocities
+    """
+    car_vi_vector = velocity_vector(vi_car, vi_car_bearing, vi_car_elevation_angle)
+    car_vf_vector = velocity_vector(vf_car, vf_car_bearing, vf_car_elevation_angle)
+
+    # Get resultant vector and get resultant vector in the x-direction (relative to car)
+    resultant_vector = car_vf_vector - car_vi_vector
+    projection = np.dot(resultant_vector, car_vi_vector) / np.linalg.norm(car_vi_vector)
+    unit_vector = car_vi_vector / np.linalg.norm(car_vi_vector)
+    velocity_projection = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
+
+    return np.linalg.norm(car_mass * (velocity_projection / timedelta))
+# print(x_force_applied(100, 1, 90, -45, 2, 0, 45, 5))
+
 
 
 

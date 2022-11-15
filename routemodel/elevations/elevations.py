@@ -3,6 +3,7 @@ import requests
 import json
 import matplotlib.pyplot as plt
 import pandas as pd
+import warnings
 
 
 
@@ -19,6 +20,9 @@ class RouteElevation():
         @param debug: Set to True if want object to print data upon each step of the algorithm (for debugging purposes). Else, False
         @return: RouteElevation object
         """
+        warnings.simplefilter('always', DeprecationWarning)
+        warnings.warn(message="This class is deprecated. Please use RouteModel paired with CoordinateElevations instead", category=DeprecationWarning)
+
         self._coordinates = coordinates
         self._number_of_segment_points = len(coordinates)
         self._sample_frequency_upper_bound = sample_frequency_upper_bound
@@ -348,7 +352,7 @@ class CoordinateElevation():
         self._number_of_coordinates = len(coordinates)
 
         self._debug = debug
-        self._compressed_coordinates = None
+        self._compressed_coordinates_lst = None
         self._elevation_data = None
 
         self.BING_MAPS_API_KEY = BING_MAPS_API_KEY
@@ -361,8 +365,8 @@ class CoordinateElevation():
         Builds the elevation data and stores them in the class object. This method is ran upon object initialization.
         - Step-by-step process of what the algorithm is doing under the hood
         """
-        self._compressed_coordinates = self.compress_coordinates(self._coordinates)
-        self._elevation_data = self.build_elevation_data(self._compressed_coordinates)
+        self._compressed_coordinates_lst = self.compress_coordinates(self._coordinates)
+        self._elevation_data = self.build_elevation_data(self._compressed_coordinates_lst)
 
 
 
@@ -373,58 +377,65 @@ class CoordinateElevation():
         @param coordinates: List of (lat, long) coordinate tuples which represents the route
         @return: Compressed query string that represents all the coordinates
         """
-        latitude = 0
-        longitude = 0
-        compressed_coordinates = ""
+        split_coordinates = [coordinates[i:i+10000] for i in range(0, len(coordinates), 10000)] # Limit 10000 coordinates per request. Change limit if there's an API size issue
+        compressed_coordinates_lst = []
 
-        for coordinate in coordinates:
-            newLatitude = round(coordinate[0] * 100000)
-            newLongitude = round(coordinate[1] * 100000)
+        for coordinate_lst in split_coordinates:
+            latitude = 0
+            longitude = 0
+            compressed_coordinates = ""
 
-            dy = newLatitude - latitude
-            dx = newLongitude - longitude
-            latitude = newLatitude
-            longitude = newLongitude
+            for coordinate in coordinate_lst:
+                newLatitude = round(coordinate[0] * 100000)
+                newLongitude = round(coordinate[1] * 100000)
 
-            dy = (dy << 1) ^ (dy >> 31)
-            dx = (dx << 1) ^ (dx >> 31)
+                dy = newLatitude - latitude
+                dx = newLongitude - longitude
+                latitude = newLatitude
+                longitude = newLongitude
 
-            index = int(((dy + dx) * (dy + dx + 1) / 2) + dy)
-            while index > 0:
-                rem = index & 31
-                index = int((index - rem) / 32)
-                if index > 0:
-                    rem += 32
-                compressed_coordinates += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"[rem]
+                dy = (dy << 1) ^ (dy >> 31)
+                dx = (dx << 1) ^ (dx >> 31)
 
-        if self._debug == True:
-            print("\n-> Compressed Coordinates\n", compressed_coordinates)
+                index = int(((dy + dx) * (dy + dx + 1) / 2) + dy)
+                while index > 0:
+                    rem = index & 31
+                    index = int((index - rem) / 32)
+                    if index > 0:
+                        rem += 32
+                    compressed_coordinates += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"[rem]
 
-        return compressed_coordinates
+            if self._debug == True:
+                print("\n-> Compressed Coordinates\n", compressed_coordinates)
+            compressed_coordinates_lst.append(compressed_coordinates)
+
+        return compressed_coordinates_lst
 
 
 
-    def build_elevation_data(self, compressed_coordinates: str):
+    def build_elevation_data(self, compressed_coordinates_lst: str):
         """
         Requests the elevation for all the coordinates using our compressed coordinate query string
         @param compressed_coordinates: Compressed query string that represents all the coordinates
         @return: Returns a list of integers, where the i-th entry represents the elevation for the i-th coordinates
         """
         BING_MAPS_API_KEY = self.BING_MAPS_API_KEY
+        coordinates_elevations_data = []
+        for compressed_coordinates in compressed_coordinates_lst: # Limit 10000 coordinates per request (See compress_coordinates method)
+            API_query_string = f"http://dev.virtualearth.net/REST/v1/Elevation/List?points={compressed_coordinates}&heights=ellipsoid&key={BING_MAPS_API_KEY}"
+            response = requests.post(API_query_string).json()
 
-        API_query_string = f"http://dev.virtualearth.net/REST/v1/Elevation/List?points={compressed_coordinates}&heights=ellipsoid&key={BING_MAPS_API_KEY}"
-        response = requests.post(API_query_string).json()
+            if response["statusCode"] != 200:
+                print("\n-> API Response\n", json.dumps(response, indent=2))
+                raise ValueError(f"Bing Maps API request error {response['statusCode']}: {response['statusDescription']}")
 
-        if response["statusCode"] != 200:
-            print("\n-> API Response\n", json.dumps(response, indent=2))
-            raise ValueError(f"Bing Maps API request error {response['statusCode']}: {response['statusDescription']}")
+            elevations_data = response["resourceSets"][0]["resources"][0]["elevations"]
+            zoom_level = response["resourceSets"][0]["resources"][0]["zoomLevel"]
 
-        coordinates_elevations_data = response["resourceSets"][0]["resources"][0]["elevations"]
-        zoom_level = response["resourceSets"][0]["resources"][0]["zoomLevel"]
-
-        if self._debug == True:
-            print("\n-> Elevation data each each coordinate\n", coordinates_elevations_data)
-            print("\n-> Zoom Level\n", zoom_level)
+            if self._debug == True:
+                print("\n-> Elevation data each each coordinate\n", elevations_data)
+                print("\n-> Zoom Level\n", zoom_level)
+            coordinates_elevations_data.extend(elevations_data)
 
         return coordinates_elevations_data
 
@@ -491,9 +502,10 @@ class CoordinateElevation():
         fig, ax = plt.subplots()
         ax.plot(elevations)
         ax.set_title(f"Route Elevation from point {start_point} to {end_point} ({len(elevations)} datapoints)")
-        ax.set_xlabel("Coordinate Index")
         ax.set_ylabel("Elevation (m)")
-        ax.set_xticks(range(len(elevations)))
+        ax.set_xlabel("Coordinate Index")
+        ax.set_xticks([])
+        # ax.set_xticks(range(len(elevations)))
         # fig.savefig('elevations.png', bbox_inches='tight')
         plt.show()
 

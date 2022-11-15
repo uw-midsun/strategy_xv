@@ -2,12 +2,13 @@ from geographiclib.geodesic import Geodesic
 from pyproj import Geod
 import math
 import pandas as pd
+import warnings
 
 
 
 class RouteModel():
 
-    def __init__(self, coordinate_lst_input: list[tuple[float]], interval_upper_bound: int):
+    def __init__(self, coordinate_lst_input: list[tuple[float]], interval_upper_bound: int = 100):
         """
         @param coordinate_lst_input: polygonal chain representation of the route
         @param interval_upper_bound: uppper bound for the distance between coordinates
@@ -36,9 +37,15 @@ class RouteModel():
         self._relative_turn_angle = None
 
         self._data = None
+        
+        if self._interval_upper_bound < 10:
+            raise TypeError("Due to accuracy issues with the API, the interval upper bound must be at least 10m")
+        elif self._interval_upper_bound < 50:
+            warnings.warn("Due to accuracy issues with the API, it is recommended that the interval upper bound be at least 50m ")
 
         if len(self._coordinate_lst_input) < 3:
             raise TypeError("coordinate_lst must have at least 3 coordinates")
+
         self.build_data()
 
 

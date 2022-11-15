@@ -2,14 +2,28 @@ import numpy as np
 
 
 
-# Forces are relative to the car (and not a flat surface/earth)
+
+"""
+Forces are relative to the car (and not a flat surface/earth)
+- +ve force in x direction pushes car forward
+- -ve force in x direction pushes car backward
+- +ve force in y direction pushes car up
+- -ve force in y direction pushes car down
+
+Net x force: gravity force (x-direction) + applied force + friction force + drag force
+Net y force: gravity force (y-direction) + normal force + downforce
+"""
+
 
 
 
 """
 CONSTANTS
 """
-CONSTANT_EARTH_GRAVITY = 9.80665 # m/s^2
+EARTH_GRAVITY = 9.80665 # m/s^2
+ROLLING_RESISTANCE_COEFFICIENT = 1 # Placeholder value, Dimensionless
+DRAG_COEFFICIENT = 1 # Placeholder value, Dimensionless
+
 
 
 
@@ -17,7 +31,7 @@ CONSTANT_EARTH_GRAVITY = 9.80665 # m/s^2
 GRAVITATIONAL/NORMAL FORCE CALCULATIONS
 """
 
-def x_force_gravity(mass, elevation_angle=0, gravity=CONSTANT_EARTH_GRAVITY): 
+def x_force_gravity(mass, elevation_angle=0, gravity=EARTH_GRAVITY): 
     """
     Calculates the force of gravity in the x-direction relative to the car (-ve force is pushing car backward, +ve force is pushing car forward)
     mass is mass of the car
@@ -27,7 +41,8 @@ def x_force_gravity(mass, elevation_angle=0, gravity=CONSTANT_EARTH_GRAVITY):
     return -mass * gravity * np.sin(np.radians(elevation_angle))
 # print(x_force_gravity(10, -4))
 
-def y_force_gravity(mass, elevation_angle=0, gravity=CONSTANT_EARTH_GRAVITY):
+
+def y_force_gravity(mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     """
     Calculates the force of gravity in the y-direction relative to the car (-ve as force is always pushing down)
     mass is mass of the car
@@ -37,7 +52,8 @@ def y_force_gravity(mass, elevation_angle=0, gravity=CONSTANT_EARTH_GRAVITY):
     return -mass * gravity * np.cos(np.radians(elevation_angle))
 # print(y_force_gravity(10, -4))
 
-def y_force_normal(mass, elevation_angle=0, gravity=CONSTANT_EARTH_GRAVITY):
+
+def y_force_normal(mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     """
     Calculates the normal in the y-direction relative to the car (+ve as force is always pushing up)
     mass is mass of the car
@@ -46,6 +62,29 @@ def y_force_normal(mass, elevation_angle=0, gravity=CONSTANT_EARTH_GRAVITY):
     """
     return -1 * y_force_gravity(mass, elevation_angle, gravity)
 # print(y_force_normal(10, -4))
+
+
+
+
+"""
+FRICTIONAL FORCE CALCULATIONS
+"""
+
+def rolling_resistance_coefficient():
+    ... # WIP
+
+
+def x_force_friction(mass, elevation_angle=0, coef_resistance=ROLLING_RESISTANCE_COEFFICIENT, gravity=EARTH_GRAVITY):
+    """
+    Calculates the friction (actually called rolling friction or rolling drag) of the car
+    mass is mass of the car
+    elevation_angle is the elevation_angle of the car relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    coef_resistance is the rolling resistance coefficient of the car
+    gravity is the gravitational acceleration on earth
+    """
+    return coef_resistance * y_force_normal(mass, elevation_angle, gravity)
+print(x_force_friction(10, -4))
+
 
 
 
@@ -92,6 +131,7 @@ def velocity_vector(speed, bearing, elevation_angle):
     return np.array([x, y, z])
 print(velocity_vector(100, 90, 0))
 
+
 def velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle):
     """
     Calculates the velocity vector of the car relative to the fluid (wind) reference frame when accounting for wind speed and direction
@@ -117,17 +157,16 @@ def velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_w
     return velocity_vector_car + project_v_wind_onto_v_car
 print(velocity_projection(1, 90, -10, 0.5, 45, 45))
 
+
 def drag_coefficent():
-    ...
+    ... # WIP
+
 
 def x_force_drag():
-    ...
+    ... # WIP
 
 
 
-"""
-FRICTIONAL FORCE CALCULATIONS
-"""
 
 """
 DOWNFORCE CALCULATIONS
@@ -136,3 +175,18 @@ DOWNFORCE CALCULATIONS
 """
 APPLIED FORCE CALCULATIONS
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    pass

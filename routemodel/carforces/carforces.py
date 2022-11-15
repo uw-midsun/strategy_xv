@@ -1,10 +1,11 @@
 import numpy as np
+from functools import lru_cache
 
 
 # Works in progress (WIP) and notes
-# - WIP: Calculate rolling_resistance_coefficient
-# - WIP: Calculate drag_coefficent
-# - WIP: Calculate lift_coefficent
+# - WIP: Calculate rolling_resistance_coefficient, https://en.wikipedia.org/wiki/Rolling_resistance#Rolling_resistance_coefficient
+# - WIP: Calculate drag_coefficent, https://en.wikipedia.org/wiki/Drag_coefficient
+# - WIP: Calculate lift_coefficent, https://en.wikipedia.org/wiki/Lift_coefficient
 # - WIP: Better way of finding the applied force (smaller timedelta or calculate using motor force values or something...)
 # - Consider using @lru_cache for some functions?
 # - Air density based on temp, humidity, pressure?
@@ -99,9 +100,10 @@ def x_force_friction(mass, elevation_angle=0, coef_resistance=ROLLING_RESISTANCE
 
 
 """
-DRAG FORCE CALCULATIONS
+DRAG AND DOWN FORCE CALCULATIONS (CLOSELY RELATED)
 """
 
+@lru_cache # Cache results because used by x_force_drag and y_force_downforce
 def velocity_vector(speed, bearing, elevation_angle):
     """
     Creates a cartesian vector representing the velocity using spherical vector values (velocity, bearing, elevation_angle)
@@ -139,9 +141,9 @@ def velocity_vector(speed, bearing, elevation_angle):
     y = speed * np.sin(theta_radians) * np.sin(phi_radians)
     z = speed * np.cos(phi_radians)
     return np.array([x, y, z])
-print(velocity_vector(100, 90, 0))
+# print(velocity_vector(100, 90, 0))
 
-
+@lru_cache # Cache results because used by x_force_drag and y_force_downforce
 def velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle):
     """
     Calculates the velocity vector of the car relative to the fluid (wind) reference frame when accounting for wind speed and direction
@@ -187,9 +189,9 @@ def x_force_drag(
     v_wind is the wind speed (a magnitude)
     v_wind_bearing is the wind direction bearing in degrees (in x-y axis) where 0/360 degrees is North
     v_wind_elevation_angle is the wind elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    car_cross_sectional_area is the cross sectional area of the car when looking directly at the front of the car
     fluid_density is the fluid density (air density)
     drag_coefficent is the drag coefficent of the car
-    car_cross_sectional_area is the cross sectional area of the car when looking directly at the front of the car
     """
     car_fluid_velocity_vector = velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle)
     car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
@@ -199,25 +201,46 @@ def x_force_drag(
 # print(x_force_drag(1, 90, -10, 0.5, 45, 45, 100, 1.204, 1))
 
 
+def lift_coefficent(): # WIP
+    ...
 
 
-"""
-DOWNFORCE CALCULATIONS
-"""
+def y_force_downforce(
+    v_car, 
+    v_car_bearing, 
+    v_car_elevation_angle, 
+    v_wind, 
+    v_wind_bearing, 
+    v_wind_elevation_angle,
+    wing_area,
+    fluid_density=AIR_DENSITY,
+    lift_coefficent=LIFT_COEFFICIENT
+    ):
+    """
+    Calculates the downforce of the car due to the fluid (wind)
+    v_car is the car speed (a magnitude)
+    v_car_bearing is the car direction bearing in degrees (in x-y axis) where 0/360 degrees is North
+    v_car_elevation_angle is the car elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    v_wind is the wind speed (a magnitude)
+    v_wind_bearing is the wind direction bearing in degrees (in x-y axis) where 0/360 degrees is North
+    v_wind_elevation_angle is the wind elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
+    wing_area is the cross sectional area of the car when looking directly down the car (the entire car is treated as a wing)
+    fluid_density is the fluid density (air density)
+    lift_coefficent is the lift coefficent of the car
+    """
+    car_fluid_velocity_vector = velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle)
+    car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
+
+    downforce = lift_coefficent * 0.5 * fluid_density * np.square(car_fluid_velocity_magnitude) * wing_area
+    return -1 * downforce # Change to negative/positive to represent the force direction relative to the car
+# print(y_force_downforce(1, 90, -10, 0.5, 45, 45, 100, 1.204, 1))
+
+
+
 
 """
 APPLIED FORCE CALCULATIONS
 """
-
-
-
-
-
-
-
-
-
-
 
 
 

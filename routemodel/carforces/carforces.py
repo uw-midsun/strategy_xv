@@ -1,5 +1,9 @@
+import sys
+import os.path
+sys.path.append(os.path.dirname(sys.path[0]))
+
 import numpy as np
-from functools import lru_cache
+from tools.tools import velocity_vector, vector_projection
 
 
 # Works in progress (WIP) and notes
@@ -104,69 +108,6 @@ def x_force_friction(car_mass, elevation_angle=0, coef_resistance=ROLLING_RESIST
 DRAG AND DOWN FORCE CALCULATIONS (CLOSELY RELATED)
 """
 
-@lru_cache # Cache results because used by x_force_drag and y_force_downforce
-def velocity_vector(speed, bearing, elevation_angle):
-    """
-    Creates a cartesian vector representing the velocity using spherical vector values (velocity, bearing, elevation_angle)
-    speed is the speed (a magnitude)
-    bearing is the direction bearing (in degrees) of the velocity (in x-y axis) where 0/360 degrees is North
-    elevation_angle is the elevation_angle of the velocity relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
-    """
-
-    def bearing_to_theta(bearing): 
-        """
-        https://sciencing.com/calculate-angle-bearing-8655354.html
-        Convert bearing to theta angles (radians) for calculating vectors
-        """
-        if not 0 <= bearing <= 360:
-            raise TypeError("bear must be within 0 to 360 degrees")
-        standard_angle = 90 - bearing
-        if standard_angle < 0:
-            standard_angle + 360
-        elif standard_angle > 0:
-            standard_angle - 360
-        return np.radians(standard_angle)
-
-    def elevation_angle_to_phi(elevation_angle):
-        """
-        Convert elevation_angle to phi angles (radians) for calculating vectors
-        """
-        if not -90 <= elevation_angle <= 90:
-            raise TypeError("elevation_angle must be within -90 to 90 degrees")
-        return np.radians(90 - elevation_angle)
-
-    theta_radians = bearing_to_theta(bearing)
-    phi_radians = elevation_angle_to_phi(elevation_angle)
-    
-    x = speed * np.cos(theta_radians) * np.sin(phi_radians)
-    y = speed * np.sin(theta_radians) * np.sin(phi_radians)
-    z = speed * np.cos(phi_radians)
-    return np.array([x, y, z])
-# print(velocity_vector(100, 90, 0))
-
-@lru_cache # Cache results because used by x_force_drag and y_force_downforce
-def velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle):
-    """
-    Calculates the velocity vector of the car relative to the fluid (wind) reference frame when accounting for wind speed and direction
-    v_car is the car speed (a magnitude)
-    v_car_bearing is the car direction bearing in degrees (in x-y axis) where 0/360 degrees is North
-    v_car_elevation_angle is the car elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
-    v_wind is the wind speed (a magnitude)
-    v_wind_bearing is the wind direction bearing in degrees (in x-y axis) where 0/360 degrees is North
-    v_wind_elevation_angle is the wind elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
-    """
-
-    velocity_vector_car = velocity_vector(v_car, v_car_bearing, v_car_elevation_angle)
-    velocity_vector_wind = velocity_vector(v_wind, v_wind_bearing, v_wind_elevation_angle)
-
-    projection = np.dot(velocity_vector_wind, velocity_vector_car) / np.linalg.norm(velocity_vector_car)
-    unit_vector = velocity_vector_car / np.linalg.norm(velocity_vector_car)
-    project_v_wind_onto_v_car = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
-
-    return velocity_vector_car + project_v_wind_onto_v_car
-# print(velocity_projection(1, 90, -10, 0.5, 45, 45))
-
-
 def drag_coefficent(): # WIP
     ... 
 
@@ -194,7 +135,9 @@ def x_force_drag(
     fluid_density is the fluid density (air density)
     drag_coefficent is the drag coefficent of the car
     """
-    car_fluid_velocity_vector = velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle)
+    car_velocity_vector = velocity_vector(v_car, v_car_bearing, v_car_elevation_angle)
+    wind_velocity_vector = velocity_vector(v_wind, v_wind_bearing, v_wind_elevation_angle)
+    car_fluid_velocity_vector = vector_projection(car_velocity_vector, wind_velocity_vector)
     car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
     
     drag_force = 0.5 * fluid_density * np.square(car_fluid_velocity_magnitude) * drag_coefficent * car_cross_sectional_area
@@ -229,7 +172,9 @@ def y_force_downforce(
     fluid_density is the fluid density (air density)
     lift_coefficent is the lift coefficent of the car
     """
-    car_fluid_velocity_vector = velocity_projection(v_car, v_car_bearing, v_car_elevation_angle, v_wind, v_wind_bearing, v_wind_elevation_angle)
+    car_velocity_vector = velocity_vector(v_car, v_car_bearing, v_car_elevation_angle)
+    wind_velocity_vector = velocity_vector(v_wind, v_wind_bearing, v_wind_elevation_angle)
+    car_fluid_velocity_vector = vector_projection(car_velocity_vector, wind_velocity_vector)
     car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
 
     downforce = lift_coefficent * 0.5 * fluid_density * np.square(car_fluid_velocity_magnitude) * wing_area
@@ -262,9 +207,9 @@ def x_force_applied(car_mass, vi_car, vi_car_bearing, vi_car_elevation_angle, vf
     resultant_vector = car_vf_vector - car_vi_vector
     projection = np.dot(resultant_vector, car_vi_vector) / np.linalg.norm(car_vi_vector)
     unit_vector = car_vi_vector / np.linalg.norm(car_vi_vector)
-    velocity_projection = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
+    resultant_vector_projection = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
 
-    return np.linalg.norm(car_mass * (velocity_projection / timedelta))
+    return np.linalg.norm(car_mass * (resultant_vector_projection / timedelta))
 # print(x_force_applied(100, 1, 90, -45, 2, 0, 45, 5))
 
 

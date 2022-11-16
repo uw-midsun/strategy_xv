@@ -55,6 +55,12 @@ class Test_RouteModel():
         correct_longitude = [-79.40101625627213, -79.3901457521166, -79.38545051088512]
         self.is_almost_equal(longitude, correct_longitude)
 
+
+    def test_trip_meters(self):
+        trip_meters = self.route._trip_meters
+        correct_trip_meters = [0, 899.06892, 1281.74487]
+        self.is_almost_equal(trip_meters, correct_trip_meters)
+
     
     def test_dist_to_next_coordinate(self):
         dist_to_next_coordinate = self.route._dist_to_next_coordinate

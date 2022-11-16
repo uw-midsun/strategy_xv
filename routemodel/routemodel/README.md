@@ -44,7 +44,7 @@ Consumes a string, `filename`, and saves a csv of the interpolated route as `<fi
 Returns a list of tuples, where each tuple represents a (latitude, longitude) coordinate of the interpolated route
 
 ---
-## Sample code (Dataframe fields may be outdated in the example; refer to the `Dataframe fields` section for lastest)
+## Sample code (Dataframe fields may be outdated in the example; refer to the `Dataframe fields` section for latest)
 
 ```
 ### CODE ###

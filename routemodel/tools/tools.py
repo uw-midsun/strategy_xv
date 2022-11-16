@@ -47,9 +47,9 @@ def velocity_vector(speed: float, bearing: float, elevation_angle: float):
     return np.array([x, y, z])
 
 
-def velocity_projection(vector_1: np.ndarray, vector_2: np.ndarray):
+def vector_projection(vector_1: np.ndarray, vector_2: np.ndarray):
     """
-    velocity_projection: calculates the projection of vector_2 onto vector_1 in the vector_1 direction
+    vector_projection: calculates the projection of vector_2 onto vector_1 in the vector_1 direction
     @param vector_1: A vector represented by a np.array
     @param vector_2: A vector represented by a np.array
     @return: Vector that is the projection of vector_2 onto vector_1 in the vector_1 direction
@@ -84,7 +84,7 @@ def np_cache(function: Callable):
 
 # Add your function here so it caches the results
 np_cache(velocity_vector)
-np_cache(velocity_projection)
+np_cache(vector_projection)
 
 
 

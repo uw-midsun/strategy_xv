@@ -10,9 +10,9 @@ velocity_vector: creates a cartesian vector representing the velocity using sphe
 @return: np.array representing a 3d vector
 ```
 
-## velocity_projection(vector_1, vector_2)
+## vector_projection(vector_1, vector_2)
 ```
-velocity_projection: calculates the projection of vector_2 onto vector_1 in the vector_1 direction
+vector_projection: calculates the projection of vector_2 onto vector_1 in the vector_1 direction
 @param vector_1: A vector represented by a np.array
 @param vector_2: A vector represented by a np.array
 @return: Vector that is the projection of vector_2 onto vector_1 in the vector_1 direction

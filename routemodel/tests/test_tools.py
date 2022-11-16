@@ -19,16 +19,16 @@ def test_velocity_vector():
     np.testing.assert_array_almost_equal(vector_2, correct_vector_2)
 
 
-def test_velocity_projection():
+def test_vector_projection():
     vector_1 = np.array([10, 0, 0])
     vector_2 = np.array([-10, 10, 10])
-    projection_12 = velocity_projection(vector_1, vector_2)
+    projection_12 = vector_projection(vector_1, vector_2)
     correct_projection_12 = np.array([-10, 0, 0])
     np.testing.assert_array_almost_equal(projection_12, correct_projection_12)
 
     vector_3 = np.array([1, 0, 3])
     vector_4 = np.array([-1, 4, 2])
-    projection_34 = velocity_projection(vector_3, vector_4)
+    projection_34 = vector_projection(vector_3, vector_4)
     correct_projection_34 = np.array([0.5, 0, 1.5])
     np.testing.assert_array_almost_equal(projection_34, correct_projection_34)
     

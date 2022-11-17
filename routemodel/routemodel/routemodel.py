@@ -65,6 +65,7 @@ class RouteModel():
 
         dist_and_bearing_data = self.build_distance_and_bearing(self._all_coordinates)
         self._dist_to_next_coordinate = dist_and_bearing_data["dist_to_next_coordinate"]
+        self._trip_meters = dist_and_bearing_data["trip_meters"]
         self._true_bearing_to_next = dist_and_bearing_data["true_bearing_to_next"]
         self._true_bearing_to_prev = dist_and_bearing_data["true_bearing_to_prev"]
         self._bearing_to_next_360 = dist_and_bearing_data["bearing_to_next_360"]
@@ -148,12 +149,14 @@ class RouteModel():
         build_distance_and_bearing: finds the distance to the next coordinate, the bearing to the next and previous coordinate
         @param all_coordinates: long list of coordinates that represents the route
         @return dist_to_next_coordinate: list of distances between coordinates
+        @return trip_meters: cumulative number of meters completed (at this point relative to the start of the route)
         @return true_bearing_to_next: list of bearings to next coordinates to true north
         @return true_bearing_to_prev: list of bearings to prev coordinates to true north
         @return bearing_to_next_360: list of bearings to next coordinates in 360 degrees
         @return bearing_to_prev_360: list of bearings to prev coordinates in 360 degrees
         """
         dist_to_next_coordinate = []
+        trip_meters = [0]
         true_bearing_to_next = []
         true_bearing_to_prev = [None]
         for i, _ in enumerate(all_coordinates[:-1]):
@@ -161,6 +164,7 @@ class RouteModel():
             lat_2, long_2 = all_coordinates[i+1]
             geo_data = Geodesic.WGS84.Inverse(lat_1, long_1, lat_2, long_2) # return values: https://geographiclib.sourceforge.io/1.52/python/interface.html
             dist_to_next_coordinate.append(geo_data["s12"]) # dist between coordinates
+            trip_meters.append(trip_meters[-1] + geo_data["s12"]) # trip dist so far
             true_bearing_to_next.append(geo_data["azi1"]) # bearing to next
             true_bearing_to_prev.append(geo_data["azi2"]+180 if geo_data["azi2"]+180 <= 180 else geo_data["azi2"]-180) # bearing to prev
         dist_to_next_coordinate.append(None)
@@ -170,9 +174,10 @@ class RouteModel():
         bearing_to_prev_360 = [i+360 if (i is not None and i < 0) else i for i in true_bearing_to_prev]
 
         return {
-            "dist_to_next_coordinate":dist_to_next_coordinate, 
-            "true_bearing_to_next":true_bearing_to_next, 
-            "true_bearing_to_prev":true_bearing_to_prev,
+            "dist_to_next_coordinate": dist_to_next_coordinate, 
+            "trip_meters": trip_meters,
+            "true_bearing_to_next": true_bearing_to_next, 
+            "true_bearing_to_prev": true_bearing_to_prev,
             "bearing_to_next_360": bearing_to_next_360,
             "bearing_to_prev_360": bearing_to_prev_360
             }
@@ -260,6 +265,7 @@ class RouteModel():
             "polyline_point_index": self._coordinate_point_index,
             "latitude": self._latitudes,
             "longitude": self._longitudes,
+            "trip_meters": self._trip_meters,
             "dist_to_next_coordinate": self._dist_to_next_coordinate, # in meters
             "true_bearing_to_next": self._true_bearing_to_next,
             "bearing_to_next_360": self._bearing_to_next_360,

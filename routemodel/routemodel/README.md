@@ -29,6 +29,7 @@ Consumes a string, `filename`, and saves a csv of the interpolated route as `<fi
 - `polyline_point_index`: The polygonal chain point index of the coordinate,
 - `latitude`: Latitude,
 - `longitude`: Longitude,
+- `trip_meters`: Cumulative number of meters completed (at this point relative to the start of the route),
 - `dist_to_next_coordinate`: Distance to next coordinate (in meters)
 - `true_bearing_to_next`: True north bearing to next coordinate
 - `bearing_to_next_360`: True north bearing to next coordinate in 360 degrees
@@ -43,7 +44,7 @@ Consumes a string, `filename`, and saves a csv of the interpolated route as `<fi
 Returns a list of tuples, where each tuple represents a (latitude, longitude) coordinate of the interpolated route
 
 ---
-## Sample code
+## Sample code (Dataframe fields may be outdated in the example; refer to the `Dataframe fields` section for latest)
 
 ```
 ### CODE ###

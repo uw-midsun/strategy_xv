@@ -55,6 +55,12 @@ class Test_RouteModel():
         correct_longitude = [-79.40101625627213, -79.3901457521166, -79.38545051088512]
         self.is_almost_equal(longitude, correct_longitude)
 
+
+    def test_trip_meters(self):
+        trip_meters = self.route._trip_meters
+        correct_trip_meters = [0, 899.06892, 1281.74487]
+        self.is_almost_equal(trip_meters, correct_trip_meters)
+
     
     def test_dist_to_next_coordinate(self):
         dist_to_next_coordinate = self.route._dist_to_next_coordinate
@@ -108,3 +114,8 @@ class Test_RouteModel():
         relative_turn_angle = self.route._relative_turn_angle
         correct_turn_angle = [None, 22.65037, None]
         self.is_almost_equal(relative_turn_angle, correct_turn_angle)
+
+    def test_get_elevations_list(self):
+        elevations = self.route.get_elevations_list()
+        correct_elevations = [(43.81857948416717,-79.40101625627213), (43.82045746557804, -79.3901457521166), (43.81990512423598, -79.38545051088512)]
+        self.is_almost_equal(elevations, correct_elevations)

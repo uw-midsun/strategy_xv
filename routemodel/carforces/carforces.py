@@ -133,7 +133,6 @@ def x_force_drag(
     
     drag_force = 0.5 * fluid_density * np.square(car_fluid_velocity_magnitude) * drag_coefficent * car_cross_sectional_area
     return -1 * drag_force # Change to negative/positive to represent the force direction relative to the car
-# print(x_force_drag(1, 90, -10, 0.5, 45, 45, 100, 1.204, 1))
 
 
 def lift_coefficent(): # WIP
@@ -167,7 +166,6 @@ def y_force_downforce(
 
     downforce = lift_coefficent * 0.5 * fluid_density * np.square(car_fluid_velocity_magnitude) * wing_area
     return -1 * downforce # Change to negative/positive to represent the force direction relative to the car
-# print(y_force_downforce(1, 90, -10, 0.5, 45, 45, 100, 1.204, 1))
 
 
 
@@ -198,7 +196,6 @@ def x_force_applied(car_mass, car_vi_vector, car_vf_vector, timedelta):
     resultant_vector_projection = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
 
     return np.linalg.norm(car_mass * (resultant_vector_projection / timedelta))
-# print(x_force_applied(100, 1, 90, -45, 2, 0, 45, 5))
 
 
 

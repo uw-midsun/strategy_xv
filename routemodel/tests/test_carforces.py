@@ -93,13 +93,67 @@ class Test_Drag_Down_Forces():
     def test_drag_coefficent(self):
         ...
 
+
     def test_x_force_drag(self):
-            AIR_DENSITY = 1.204
-            DRAG_COEFFICIENT = 1
-            return
-            car_velocity_vector = np.array([])
-            wind_velocity_vector = np.array([])
-            car_cross_sectional_area = 100
-            drag_1 = x_force_drag(car_velocity_vector, wind_velocity_vector, car_cross_sectional_area, fluid_density=AIR_DENSITY, drag_coefficent=DRAG_COEFFICIENT)
-            correct_drag_1 = None
-            ...
+        AIR_DENSITY = 1.204
+        DRAG_COEFFICIENT = 1
+
+        car_velocity_vector_1 = np.array([1, 0, 3])
+        wind_velocity_vector_1 = np.array([-1, 4, 2])
+        car_cross_sectional_area_1 = 100
+        drag_1 = x_force_drag(car_velocity_vector_1, wind_velocity_vector_1, car_cross_sectional_area_1, fluid_density=AIR_DENSITY, drag_coefficent=DRAG_COEFFICIENT)
+        correct_drag_1 = -150.5
+        np.isclose(drag_1, correct_drag_1)
+
+        car_velocity_vector_2 = np.array([1, 0, 0])
+        wind_velocity_vector_2 = np.array([0, 1, 0])
+        car_cross_sectional_area_2 = 100
+        drag_2 = x_force_drag(car_velocity_vector_2, wind_velocity_vector_2, car_cross_sectional_area_2, fluid_density=AIR_DENSITY, drag_coefficent=DRAG_COEFFICIENT)
+        correct_drag_2 = 0
+        np.isclose(drag_2, correct_drag_2)
+
+        car_velocity_vector_3 = np.array([3, 1, -2])
+        wind_velocity_vector_3 = np.array([2, 3, 1])
+        car_cross_sectional_area_3 = 123
+        drag_3 = x_force_drag(car_velocity_vector_3, wind_velocity_vector_3, car_cross_sectional_area_3, fluid_density=1.5, drag_coefficent=1.5)
+        correct_drag_3 = -484.3125
+        np.isclose(drag_3, correct_drag_3)
+
+
+    @pytest.mark.skip(reason="lift_coefficent function is not complete")
+    def test_lift_coefficent(self):
+        ...
+    
+
+    def test_y_force_downforce(self):
+        AIR_DENSITY = 1.204
+        LIFT_COEFFICIENT = 2
+
+        car_velocity_vector_1 = np.array([1, 0, 3])
+        wind_velocity_vector_1 = np.array([-1, 4, 2])
+        wing_area_1 = 100
+        downforce_1 = y_force_downforce(car_velocity_vector_1, wind_velocity_vector_1, wing_area_1, fluid_density=AIR_DENSITY, lift_coefficent=LIFT_COEFFICIENT)
+        correct_downforce_1 = -301
+        np.isclose(downforce_1, correct_downforce_1)
+
+        car_velocity_vector_2 = np.array([1, 0, 0])
+        wind_velocity_vector_2 = np.array([0, 1, 0])
+        wing_area_2 = 100
+        downforce_2 = y_force_downforce(car_velocity_vector_2, wind_velocity_vector_2, wing_area_2, fluid_density=AIR_DENSITY, lift_coefficent=LIFT_COEFFICIENT)
+        correct_downforce_2 = 0
+        np.isclose(downforce_2, correct_downforce_2)
+
+        car_velocity_vector_3 = np.array([3, 1, -2])
+        wind_velocity_vector_3 = np.array([2, 3, 1])
+        wing_area_3 = 321
+        downforce_3 = y_force_downforce(car_velocity_vector_3, wind_velocity_vector_3, wing_area_3, fluid_density=1.5, lift_coefficent=1.5)
+        correct_downforce_3 = -1263.9375
+        np.isclose(downforce_3, correct_downforce_3)
+
+
+
+
+class Test_Applied_Force():
+
+    def test_x_force_applied(self):
+        ...

@@ -156,4 +156,28 @@ class Test_Drag_Down_Forces():
 class Test_Applied_Force():
 
     def test_x_force_applied(self):
-        ...
+
+        mass = 100
+        car_vi_vector_1 = np.array([1, 0, 3])
+        car_vf_vector_1 = np.array([-1, 4, 2])
+        timedelta = 1
+        applied_force_1 = x_force_applied(mass, car_vi_vector_1, car_vf_vector_1, timedelta)
+        correct_applied_force_1 = 158.113883
+        np.isclose(applied_force_1, correct_applied_force_1)
+        
+        mass = 123
+        car_vi_vector_2 = np.array([-1, 2, 3])
+        car_vf_vector_2 = np.array([4, 2, -1])
+        timedelta = 0.5
+        applied_force_2 = x_force_applied(mass, car_vi_vector_2, car_vf_vector_2, timedelta)
+        correct_applied_force_2 = 1117.686514
+        np.isclose(applied_force_2, correct_applied_force_2)
+
+        mass = 10
+        car_vi_vector_3 = np.array([1, 0, 0])
+        car_vf_vector_3 = np.array([-1, 1, 0])
+        timedelta = 0.25
+        applied_force_3 = x_force_applied(mass, car_vi_vector_3, car_vf_vector_3, timedelta)
+        correct_applied_force_3 = 1117.686514
+        np.isclose(applied_force_3, correct_applied_force_3)
+        # NEED TO DETERMINE DIRECTION

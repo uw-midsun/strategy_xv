@@ -5,6 +5,7 @@ import pandas as pd
 def numOfTurns(data):
     '''
     Number of major turns
+    @param data: Pandas dataframe containing entire loop data
     '''
     turnCount = 0
     for instructions in data["Major Turns/Instructions"]:
@@ -15,6 +16,7 @@ def numOfTurns(data):
 def numOfStops(data):
     '''
     Determines the number of stops
+    @param data: Pandas dataframe containing entire loop data
     '''
     stopCount = 0
     for instructions in data["Major Turns/Instructions"]:
@@ -26,6 +28,11 @@ def numOfStops(data):
     return stopCount
 
 def totalTimeAndSpeed(data, totalDistance):
+    '''
+    Calculates the total time and average speed of the loop
+    @param data: Pandas dataframe containing entire loop data
+    @param totalDistance: float representing the total distance of the loop
+    '''
     totalTime = 0
     for index, row in data.iterrows():
         totalTime += float(row["Int"]) / float(row["Spd"])

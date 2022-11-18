@@ -11,8 +11,6 @@ from tools.tools import velocity_vector, vector_projection
 # - WIP: Calculate drag_coefficent, https://en.wikipedia.org/wiki/Drag_coefficient
 # - WIP: Calculate lift_coefficent, https://en.wikipedia.org/wiki/Lift_coefficient
 # - WIP: Better way of finding the applied force (smaller timedelta or calculate using motor force values or something...)
-# - Refactor code to have them work with velocity vectors (reduces number of calculations and faster execution)
-# - Consider using @lru_cache for some functions?
 # - Air density based on temp, humidity, pressure?
 # - Consider motor efficiency and other efficiencies?
 
@@ -55,7 +53,6 @@ def x_force_gravity(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     gravity is the gravitational acceleration on earth
     """
     return -car_mass * gravity * np.sin(np.radians(elevation_angle))
-# print(x_force_gravity(10, -4))
 
 
 def y_force_gravity(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
@@ -66,7 +63,6 @@ def y_force_gravity(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     gravity is the gravitational acceleration on earth
     """
     return -car_mass * gravity * np.cos(np.radians(elevation_angle))
-# print(y_force_gravity(10, -4))
 
 
 def y_force_normal(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
@@ -77,7 +73,6 @@ def y_force_normal(car_mass, elevation_angle=0, gravity=EARTH_GRAVITY):
     gravity is the gravitational acceleration on earth
     """
     return -1 * y_force_gravity(car_mass, elevation_angle, gravity)
-# print(y_force_normal(10, -4))
 
 
 
@@ -99,7 +94,6 @@ def x_force_friction(car_mass, elevation_angle=0, coef_resistance=ROLLING_RESIST
     gravity is the gravitational acceleration on earth
     """
     return coef_resistance * y_force_normal(car_mass, elevation_angle, gravity)
-# print(x_force_friction(10, -4))
 
 
 
@@ -113,12 +107,8 @@ def drag_coefficent(): # WIP
 
 
 def x_force_drag(
-    v_car, 
-    v_car_bearing, 
-    v_car_elevation_angle, 
-    v_wind, 
-    v_wind_bearing, 
-    v_wind_elevation_angle, 
+    car_velocity_vector, 
+    wind_velocity_vector,
     car_cross_sectional_area,
     fluid_density=AIR_DENSITY,
     drag_coefficent=DRAG_COEFFICIENT
@@ -135,8 +125,9 @@ def x_force_drag(
     fluid_density is the fluid density (air density)
     drag_coefficent is the drag coefficent of the car
     """
-    car_velocity_vector = velocity_vector(v_car, v_car_bearing, v_car_elevation_angle)
-    wind_velocity_vector = velocity_vector(v_wind, v_wind_bearing, v_wind_elevation_angle)
+    assert type(car_velocity_vector) == np.ndarray and len(car_velocity_vector) == 3
+    assert type(wind_velocity_vector) == np.ndarray and len(wind_velocity_vector) == 3
+
     car_fluid_velocity_vector = vector_projection(car_velocity_vector, wind_velocity_vector)
     car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
     
@@ -150,12 +141,8 @@ def lift_coefficent(): # WIP
 
 
 def y_force_downforce(
-    v_car, 
-    v_car_bearing, 
-    v_car_elevation_angle, 
-    v_wind, 
-    v_wind_bearing, 
-    v_wind_elevation_angle,
+    car_velocity_vector, 
+    wind_velocity_vector,
     wing_area,
     fluid_density=AIR_DENSITY,
     lift_coefficent=LIFT_COEFFICIENT
@@ -172,8 +159,9 @@ def y_force_downforce(
     fluid_density is the fluid density (air density)
     lift_coefficent is the lift coefficent of the car
     """
-    car_velocity_vector = velocity_vector(v_car, v_car_bearing, v_car_elevation_angle)
-    wind_velocity_vector = velocity_vector(v_wind, v_wind_bearing, v_wind_elevation_angle)
+    assert type(car_velocity_vector) == np.ndarray and len(car_velocity_vector) == 3
+    assert type(wind_velocity_vector) == np.ndarray and len(wind_velocity_vector) == 3
+
     car_fluid_velocity_vector = vector_projection(car_velocity_vector, wind_velocity_vector)
     car_fluid_velocity_magnitude = np.linalg.norm(car_fluid_velocity_vector)
 
@@ -188,7 +176,7 @@ def y_force_downforce(
 APPLIED FORCE CALCULATIONS
 """
 
-def x_force_applied(car_mass, vi_car, vi_car_bearing, vi_car_elevation_angle, vf_car, vf_car_bearing, vf_car_elevation_angle, timedelta):
+def x_force_applied(car_mass, car_vi_vector, car_vf_vector, timedelta):
     """
     calculate the applied force in the x direction (relative to the car) using f=ma
     car_mass is mass of the car
@@ -200,8 +188,8 @@ def x_force_applied(car_mass, vi_car, vi_car_bearing, vi_car_elevation_angle, vf
     vf_car_elevation_angle is the final car elevation_angle relative to the x-axis (0 is on x-y plane, +ve is going up, -ve is going down)
     timedelta is the time difference between the inital and final velocities
     """
-    car_vi_vector = velocity_vector(vi_car, vi_car_bearing, vi_car_elevation_angle)
-    car_vf_vector = velocity_vector(vf_car, vf_car_bearing, vf_car_elevation_angle)
+    assert type(car_vi_vector) == np.ndarray and len(car_vi_vector) == 3
+    assert type(car_vf_vector) == np.ndarray and len(car_vf_vector) == 3
 
     # Get resultant vector and get resultant vector in the x-direction (relative to car)
     resultant_vector = car_vf_vector - car_vi_vector

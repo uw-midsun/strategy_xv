@@ -191,13 +191,13 @@ def x_force_applied(car_mass, car_vi_vector, car_vf_vector, timedelta):
 
     # Get resultant vector and get resultant vector in the x-direction (relative to car)
     resultant_vector = car_vf_vector - car_vi_vector
-    projection = np.dot(resultant_vector, car_vi_vector) / np.linalg.norm(car_vi_vector)
-    unit_vector = car_vi_vector / np.linalg.norm(car_vi_vector)
-    resultant_vector_projection = projection * unit_vector # 3D projection: https://www.youtube.com/watch?v=DfIsa7ArxSo
+    resultant_vector_projection =vector_projection(car_vi_vector, resultant_vector)
+    print(resultant_vector)
+    print(resultant_vector_projection)
 
     return np.linalg.norm(car_mass * (resultant_vector_projection / timedelta))
-
-
+x_force_applied(10, np.array([1,0,0]), np.array([0,1,0]), 1)
+# NEED TO DETERMINE DIRECTION
 
 
 if __name__ == "__main__":

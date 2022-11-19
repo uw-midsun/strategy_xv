@@ -216,53 +216,24 @@ class Test_CoordinateElevation():
         assert coordinates_elevations_data == correct_coordinates_elevations_data
 
 
-    def test_get_elevation_all(self):
-        coordinates, elevation = self.route.get_elevations()
-        correct_coordinates = self.route._coordinates
-        correct_elevation = [195, 207, 183, 189, 190, 207]
-        assert coordinates == correct_coordinates
-        assert elevation == correct_elevation
+    def test_build_relative_elevation_gains(self):
+        relative_elevation_gains = self.route.build_relative_elevation_gains(self.route._elevation_data)
+        correct_relative_elevation_gains = [12, -24, 6, 1, 17, None]
+        assert relative_elevation_gains == correct_relative_elevation_gains
 
 
-    def test_get_elevation_index_0_to_3(self):
-        coordinates, elevation = self.route.get_elevations(0,3)
-        correct_coordinates = self.route._coordinates[0:3+1]
-        correct_elevation = [195, 207, 183, 189]
-        assert coordinates == correct_coordinates
-        assert elevation == correct_elevation
-
-
-    def test_get_elevation_index_4_to_5(self):
-        coordinates, elevation = self.route.get_elevations(4,5)
-        correct_coordinates = self.route._coordinates[4:5+1]
-        correct_elevation = [190, 207]
-        assert coordinates == correct_coordinates
-        assert elevation == correct_elevation
-
-
-    def test_get_dataframe_all(self):
+    def test_get_dataframe(self):
         data = self.route.get_dataframe()
         correct_latitude = [coordinate[0] for coordinate in self.route._coordinates]
         correct_longitude = [coordinate[1] for coordinate in self.route._coordinates]
         correct_elevation = [195, 207, 183, 189, 190, 207]
+        correct_relative_elevation_gains = [12, -24, 6, 1, 17, '']
 
-        correct_dataframe = pd.DataFrame({"latitude":correct_latitude, "longitude":correct_longitude, "elevation":correct_elevation})
+        correct_dataframe = pd.DataFrame({
+            "latitude":correct_latitude, 
+            "longitude":correct_longitude, 
+            "elevation":correct_elevation, 
+            "relative_elevation_gains_to_next":correct_relative_elevation_gains
+        })
         pd.testing.assert_frame_equal(data, correct_dataframe)
 
-
-    def test_get_dataframe_index_0_to_3(self):
-        data = self.route.get_dataframe(0,3)
-        correct_latitude = [coordinate[0] for coordinate in self.route._coordinates[0:3+1]]
-        correct_longitude = [coordinate[1] for coordinate in self.route._coordinates[0:3+1]]
-        correct_elevation = [195, 207, 183, 189]
-        correct_dataframe = pd.DataFrame({"latitude":correct_latitude, "longitude":correct_longitude, "elevation":correct_elevation})
-        pd.testing.assert_frame_equal(data, correct_dataframe)
-
-
-    def test_get_dataframe_index_4_to_5(self):
-        data = self.route.get_dataframe(4,5)
-        correct_latitude = [coordinate[0] for coordinate in self.route._coordinates[4:5+1]]
-        correct_longitude = [coordinate[1] for coordinate in self.route._coordinates[4:5+1]]
-        correct_elevation = [190, 207]
-        correct_dataframe = pd.DataFrame({"latitude":correct_latitude, "longitude":correct_longitude, "elevation":correct_elevation})
-        pd.testing.assert_frame_equal(data, correct_dataframe)

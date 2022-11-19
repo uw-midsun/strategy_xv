@@ -354,6 +354,7 @@ class CoordinateElevation():
         self._debug = debug
         self._compressed_coordinates_lst = None
         self._elevation_data = None
+        self._relative_elevation_gains = None
 
         self.BING_MAPS_API_KEY = BING_MAPS_API_KEY
         self.build_elevations()
@@ -367,6 +368,7 @@ class CoordinateElevation():
         """
         self._compressed_coordinates_lst = self.compress_coordinates(self._coordinates)
         self._elevation_data = self.build_elevation_data(self._compressed_coordinates_lst)
+        self._relative_elevation_gains = self.build_relative_elevation_gains(self._elevation_data)
 
 
 
@@ -441,36 +443,24 @@ class CoordinateElevation():
 
 
 
-    def get_elevations(self, start_point: int = None, end_point: int = None):
+    def build_relative_elevation_gains(self, elevation_data : list):
         """
-        Builds the coordinate and elevation values for the user to use
-            - If both params are None, returns all the distances and elevations for all the coordinates
-        @param start_point (optional): The starting coordinate index to start getting elevations from
-        @param end_point (optional): The ending coordinate index to stop getting elevations from
-        @return: List of coordinates from start_point to end_point
-        @return: List of numbers that represents coordinate elevations from start_point to end_point
+        Calculates the elevation change between the i and i+1 elevation in a list of elevations
+        @param coordinates_elevations_data: a list of integers, where the i-th entry represents the elevation for the i-th coordinates
+        @return: list of integers, where the i-th entry represents the elevation change between the i and i+1 elevation
         """
-        coordinates = self._coordinates
-        elevation_data = self._elevation_data
-        points = [*filter(lambda point: point is not None, [start_point, end_point])]
+        relative_elevation_gains = []
+        for i, elevation in enumerate(elevation_data[:-1]):
+            elevation1 = elevation_data[i]
+            elevation2 = elevation_data[i+1]
+            relative_elevation_gains.append(elevation2 - elevation1)
+        relative_elevation_gains.append(None)
 
-        if (len(points) != 0 and len(points) != 2):
-            raise ValueError("get_elevations requires 0 or 2 parameters: start_point and end_point (0-indexed)")
-
-        if len(points) == 0:
-            return coordinates, elevation_data
-
-        if len(points) == 2:
-            assert 0 <= start_point, "start_point must be greater than or equal to 0"
-            assert end_point <= self._number_of_coordinates - 1, f"end_point must be less than {self._number_of_coordinates}"
-            assert start_point < end_point, "start_point must be less than end_point"
-            start_point, end_point = points
-
-            return coordinates[start_point:end_point+1], elevation_data[start_point:end_point+1]
+        return relative_elevation_gains
 
 
 
-    def get_dataframe(self, start_point: int = None, end_point: int = None):
+    def get_dataframe(self):
         """
         Builds the coordinates and elevation values in a dataframe for the user to use
             - If both params are None, returns a dataframe with all the coordinates and elevations
@@ -478,30 +468,34 @@ class CoordinateElevation():
         @param end_point (optional): The ending coordinate index to stop getting elevations from
         @return: dataframe where each row represents the coordinate and its associated elevation
         """
-        coordinates, elevations = self.get_elevations(start_point, end_point)
+        coordinates = self._coordinates
         zip_coordinates = list(zip(*coordinates))
         latitude = zip_coordinates[0]
         longitude = zip_coordinates[1]
 
+        elevation_data = self._elevation_data
+        relative_elevation_gains = self._relative_elevation_gains
+
         return pd.DataFrame({
             "latitude": latitude,
             "longitude": longitude,
-            "elevation":elevations
-        })
+            "elevation": elevation_data,
+            "relative_elevation_gains_to_next": relative_elevation_gains
+        }).fillna('')
 
 
 
-    def plot_elevations(self, start_point: int = None, end_point: int = None):
+    def plot_elevations(self):
         """
         Plots the coordinate index and elevation values for the user
             - If both params are None, plots all the distances and elevations for all the coordinates
         @param start_point (optional): The starting coordinate index to start getting elevations from
         @param end_point (optional): The ending coordinate index to stop getting elevations from
         """
-        coordinates, elevations = self.get_elevations(start_point, end_point)
+        elevation_data = self._elevation_data
         fig, ax = plt.subplots()
-        ax.plot(elevations)
-        ax.set_title(f"Route Elevation from point {start_point} to {end_point} ({len(elevations)} datapoints)")
+        ax.plot(elevation_data)
+        ax.set_title(f"Route Elevation ({len(elevation_data)} datapoints)")
         ax.set_ylabel("Elevation (m)")
         ax.set_xlabel("Coordinate Index")
         ax.set_xticks([])

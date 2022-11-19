@@ -4,7 +4,8 @@ import pandas as pd
 from RouteClass import RouteClass
 from coordinates.get_coordinates import get_coordinates
 from elevations.get_elevations import get_elevations
-
+import time
+t0 = time.time()
 
 """
 API KEYS

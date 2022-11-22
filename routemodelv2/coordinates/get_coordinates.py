@@ -8,6 +8,15 @@ import warnings
 
 
 def get_coordinates(polyline_coordinates: list, interval_upper_bound: int) -> pd.DataFrame:
+    """
+    get_coordinates is a function that consumes a polygonal chain representation of a route and returns an interpolated route
+        and coordinate data in a pandas dataframe
+    @param polyline_coordinates: a polygonal chain representation of a route. It is of the form: a list of coordinate tuples
+    @param interval_upper_bound: the distance upper bound for the distances between interpolated coordinates
+    @return: pandas dataframe with data on: coordinate_point_index, latitudes, longitudes, trip_meters, dist_to_next_coordinate, 
+        true_bearing_to_next, bearing_to_next_360, true_bearing_to_prev, bearing_to_prev_360, general_travel_direction, 
+        turn_bearings, turn_type, relative_turn_angle
+    """
 
 
     """

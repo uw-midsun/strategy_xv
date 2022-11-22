@@ -2,10 +2,17 @@ import requests
 import json
 import pandas as pd
 
-
+# todo: add calculation of car elevation angle
 
 
 def get_elevations(coordinates: list, BING_MAPS_API_KEY: str) -> pd.DataFrame:
+    """
+    get_elevations is a function that consumes a list of coordinates and bing maps API key and returns a pandas 
+        dataframe containing the elevation of each coordinate and relative elevation gain (from to next coordinate)
+    @param coordinates: a list of coordinate tuples
+    @param BING_MAPS_API_KEY: your bing maps api key (as a string)
+    @return pandas dataframe with data on coordinates, coordinates_elevations_data, relative_elevation_gains
+    """
 
 
     """

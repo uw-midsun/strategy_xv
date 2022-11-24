@@ -3,13 +3,15 @@ import os.path
 sys.path.append(os.path.dirname(sys.path[0]))
 
 import pytest
+import dotenv
 import pandas as pd
 from elevations.get_elevations import get_elevations
 
 
 
 
-BING_MAPS_API_KEY = ""
+dotenv.load_dotenv()
+BING_MAPS_API_KEY = os.getenv("BING_MAPS_API_KEY")
 
 
 

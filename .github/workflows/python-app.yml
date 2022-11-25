@@ -25,7 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry flake8 pytest
           if [ -f pyproject.toml ]; then poetry install; fi
-          poetry shell
       - name: Test Repository
         run: |
           pytest

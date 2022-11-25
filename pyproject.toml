@@ -10,9 +10,12 @@ scipy = "^1.9.1"
 pyproj = "^3.4.0"
 pandas = "^1.5.1"
 geopy = "^2.2.0"
+numpy = "^1.23.5"
+python-dotenv = "^0.21.0"
+matplotlib = "^3.6.2"
+geographiclib = "^2.0"
 
 [tool.poetry.dev-dependencies]
-pandas = "^1.4.2"
 config = "^0.5.1"
 requests = "^2.27.1"
 pytest = "^7.1.2"

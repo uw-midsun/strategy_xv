@@ -2,9 +2,6 @@ import sys
 import os.path
 sys.path.append(os.path.dirname(sys.path[0]))
 
-import pytest
-import pandas as pd
-import numpy as np
 import math
 from routemodel.routemodel import RouteModel
 

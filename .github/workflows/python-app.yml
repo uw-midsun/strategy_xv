@@ -20,8 +20,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-        env:
-          BING_MAPS_API_KEY: ${{ secrets.BING_MAPS_API_KEY }}
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -30,3 +28,5 @@ jobs:
       - name: Test Repository
         run: |
           poetry run pytest
+        env:
+          BING_MAPS_API_KEY: ${{ secrets.BING_MAPS_API_KEY }}

@@ -15,7 +15,7 @@ load_dotenv()
 - Plotting graph method is not tested
 - Make sure API Key is here
 """
-BING_MAPS_API_KEY = os.environ.get("BING_MAPS_API_KEY")
+BING_MAPS_API_KEY = os.environ['BING_MAPS_API_KEY']
 
 class Test_RouteElevation():
     coordinates = [

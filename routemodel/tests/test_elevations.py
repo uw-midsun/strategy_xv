@@ -1,13 +1,12 @@
 import sys
-import os.path
+import os
 sys.path.append(os.path.dirname(sys.path[0]))
 
-import pytest
+from dotenv import load_dotenv
 import pandas as pd
 from elevations.elevations import RouteElevation, CoordinateElevation
 
-
-
+load_dotenv()
 
 
 """
@@ -16,11 +15,7 @@ from elevations.elevations import RouteElevation, CoordinateElevation
 - Plotting graph method is not tested
 - Make sure API Key is here
 """
-BING_MAPS_API_KEY = ""
-
-
-
-
+BING_MAPS_API_KEY = os.environ['BING_MAPS_API_KEY']
 
 class Test_RouteElevation():
     coordinates = [

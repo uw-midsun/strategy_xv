@@ -3,12 +3,13 @@ from pyproj import Geod
 import math
 import pandas as pd
 import warnings
+from typing import List, Tuple
 
 
 
 class RouteModel():
 
-    def __init__(self, coordinate_lst_input: list[tuple[float]], interval_upper_bound: int = 100):
+    def __init__(self, coordinate_lst_input: List[Tuple[float]], interval_upper_bound: int = 100):
         """
         @param coordinate_lst_input: polygonal chain representation of the route
         @param interval_upper_bound: uppper bound for the distance between coordinates
@@ -81,7 +82,7 @@ class RouteModel():
         self._data = self.build_dataframe()
 
 
-    def build_segment_cooridnates(self, coordinate_lst_input: list[tuple[float]], interval_upper_bound: int): 
+    def build_segment_cooridnates(self, coordinate_lst_input: List[Tuple[float]], interval_upper_bound: int): 
         """
         build_segment_cooridnates: interpolates each segment into multiple coordinates with the distance between each coordinate
             less than interval_upper_bound
@@ -109,7 +110,7 @@ class RouteModel():
         return segment_cooridnates
 
 
-    def build_segment_points(self, segment_cooridnates: list[list[tuple[float]]]):
+    def build_segment_points(self, segment_cooridnates: List[List[Tuple[float]]]):
         """
         build_segment_points: Formats segment_cooridnates into a long list of coordinates
         @param segment_cooridnates: a list of lists that contains the coordinates for each segment in the route/polygonal chain
@@ -128,7 +129,7 @@ class RouteModel():
         return {"coordinate_point_index":coordinate_point_index, "all_coordinates":all_coordinates}
 
 
-    def build_latitudes_longitudes(self, all_coordinates: list[tuple[float]]):
+    def build_latitudes_longitudes(self, all_coordinates: List[Tuple[float]]):
         """
         build_latitudes_longitudes: Converts list of coordinates into their lat and long
         @param all_coordinates: long list of coordinates that represents the route
@@ -144,7 +145,7 @@ class RouteModel():
         return {"latitudes":latitudes, "longitudes":longitudes}
 
 
-    def build_distance_and_bearing(self, all_coordinates: list[tuple[float]]):
+    def build_distance_and_bearing(self, all_coordinates: List[Tuple[float]]):
         """"
         build_distance_and_bearing: finds the distance to the next coordinate, the bearing to the next and previous coordinate
         @param all_coordinates: long list of coordinates that represents the route
@@ -183,7 +184,7 @@ class RouteModel():
             }
 
 
-    def build_general_travel_direction(self, bearing_to_next_360: list[float]):
+    def build_general_travel_direction(self, bearing_to_next_360: List[float]):
         """"
         build_general_travel_direction: finds the general traveling direction at the coordinate
         @param bearing_to_next_360: list of bearings to next coordinates in 360 degrees
@@ -213,7 +214,7 @@ class RouteModel():
         return general_travel_direction
 
 
-    def build_turn_data(self, all_coordinates, true_bearing_to_next: list[float]):
+    def build_turn_data(self, all_coordinates, true_bearing_to_next: List[float]):
         """
         build_turn_data: determines the type of turn and the turning angle
         @param all_coordinates: long list of coordinates that represents the route

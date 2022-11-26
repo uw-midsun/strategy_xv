@@ -1,3 +1,5 @@
+import os
+import dotenv
 import numpy as np
 import pandas as pd
 
@@ -10,7 +12,9 @@ t0 = time.time()
 """
 API KEYS
 """
-BING_MAPS_API_KEY = ""
+dotenv.load_dotenv()
+# BING_MAPS_API_KEY = "" # Manual option
+BING_MAPS_API_KEY = os.getenv("BING_MAPS_API_KEY")
 
 
 """

@@ -30,3 +30,4 @@ jobs:
           poetry run pytest
         env:
           BING_MAPS_API_KEY: ${{ secrets.BING_MAPS_API_KEY }}
+          TOMORROW_IO_API_KEY: ${{ secrets.TOMORROW_IO_API_KEY }}

@@ -8,6 +8,7 @@ from coordinates.get_coordinates import get_coordinates
 from elevations.get_elevations import get_elevations
 import time
 t0 = time.time()
+t1 = time.time()
 
 """
 API KEYS
@@ -29,7 +30,7 @@ polyline_coordinates = [
     (43.46348360838345, -80.53993555488016),
     (43.46266401802443, -80.53908339764159)
     ]
-interval_upper_bound = 100
+interval_upper_bound = 25
 route = RouteClass(polyline_coordinates=polyline_coordinates, interval_upper_bound=interval_upper_bound)
 
 
@@ -38,21 +39,21 @@ Step 2: Interpolate coordinates and coordinate info for our route
 """
 polyline_coordinates = route.polyline_coordinates
 interval_upper_bound = route.interval_upper_bound
-
 coordinates = get_coordinates(polyline_coordinates=polyline_coordinates, interval_upper_bound=interval_upper_bound)
+
 route.append_data(coordinates)
 # print(route.data())
 # route.get_csv("route0")
+# route.to_database(table_name="route0")
 
 
 """
 Step 3: Get elevation info for our route
 """
-latitude = route.data()["latitude"]
-longitude = route.data()["longitude"]
-coordinates = list(zip(latitude, longitude))
-
+coordinates = route.coordinate_list()
 elevations = get_elevations(coordinates=coordinates, BING_MAPS_API_KEY=BING_MAPS_API_KEY)
+
 route.append_data(elevations)
 # print(route.data())
 # route.get_csv("route1")
+# route.to_database(table_name="route1")

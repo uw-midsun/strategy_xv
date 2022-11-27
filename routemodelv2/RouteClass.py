@@ -1,5 +1,13 @@
+import os
+import dotenv
 import pandas as pd
+from sqlalchemy import create_engine
 
+dotenv.load_dotenv()
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
+MYSQL_USER = os.getenv("MYSQL_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
 
 
 
@@ -48,6 +56,23 @@ class RouteClass():
         """
         if self._data is not None:
             return self._data
+        else:
+            return None
+
+
+    def coordinate_list(self):
+        """
+        coordinate_list returns a list of all the coordinate tuples
+        @param: None
+        @return: list of all the coordinate tuples
+        """
+        data = self._data
+        if data is not None:
+            latitude = data["latitude"]
+            longitude = data["longitude"]
+            return list(zip(latitude, longitude))
+        else:
+            return None
 
 
     def get_csv(self, filename = "data"):
@@ -60,4 +85,28 @@ class RouteClass():
             data = self._data.fillna('')
             format_filename = f"{filename}.csv" if ".csv" not in filename else filename
             data.to_csv(format_filename)
+
+
+    def to_database(self, table_name, database_name = MYSQL_DATABASE, if_exists = "replace", mysql_host = MYSQL_HOST, mysql_user = MYSQL_USER, mysql_password = MYSQL_PASSWORD):
+        """
+        to_database is a method to save RouteClass's current data into a database
+        @param table_name: the name of the table that the data is to be saved into
+        @param database_name: the name of the database (default: midsun)
+        @param if_exists: action to do if the table already exists in the database (options: 'fail', 'replace', 'append')
+        @param mysql_host: where the mysql database is hosted
+        @param mysql_user: mysql username
+        @param mysql_password: mysql password
+        @return: {'success': True} if successfully wrote to database, else {'success': False}
+        """
+        engine = create_engine(f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}/{database_name}")
+        data = self._data.fillna('')
+
+        if data is not None:
+            response = data.to_sql(name=table_name, con=engine, if_exists=if_exists, method="multi")
+
+            rowcount = data.shape[0]
+            if rowcount == response:
+                return {"success": True}
+            else:
+                return {"success": False}
 

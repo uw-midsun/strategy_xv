@@ -1,0 +1,26 @@
+Step,Trip,Int,Major Turns/Instructions,Landmarks/Notes,Ln,Spd,Shoulder,Services
+EL 1 ,0,  ,TURN LEFT out of High School parking lot onto Pso De Las Escuelis ,Speed bump! ,  ,  ,  ,  
+EL 2 ,0.05,0.05,TURN LEFT at STOP SIGN onto Moreno St,  ,  ,  ,  ,  
+EL 3 ,0.2,0.15,  ,Stop Sign (All-Way) for Gonzales St ,  ,  ,  ,  
+EL 4 ,0.3,0.1,  ,Stop Sign (All-Way) for South Pacific St ,1,15,  ,  
+EL 5 ,0.5,0.2,TURN RIGHT at STOP SIGN onto New Mexico Ave/NM-329 South/N. Mex. Ave ,  ,1,30,paved ,  
+EL 6 ,0.7,0.2,  ,Santa Fe St ,  ,  ,  ,  
+EL 7 ,1.2,0.5,  ,SL for Hot Springs ,  ,  ,  ,  
+EL 8 ,1.4,0.2,  , ,  ,40,  ,  
+EL 9 ,1.8,0.4,  ,SL for 8th ,  ,  ,  ,  
+EL 10 ,1.9,0.1,TURN LEFT at SL onto 7th St ,McDonald's & Sonic on corner ,2,  ,curb ,food 
+EL 11 ,2.7,0.8,CONTINUE STRAIGHT on NM-518 ,SL for Mountain View Dr ,2,  ,  ,fuel 
+EL 12 ,2.8,0.1,  ,SL for Legion Dr ,2,40,  ,  
+EL 13 ,3.3,0.5,  ,  ,  ,50,  ,  
+EL 14 ,4.5,1.2,  ,Left lane ends ahead ,  ,55,gravel ,  
+EL 15 ,5.6,1.1,  ,Storrie Lake State Park on left ,1,55,  ,  
+EL 16 ,6.2,0.6,  ,Large gravel pulloff on right ,  ,  ,paved ,  
+EL 17 ,7.2,1,  ,  ,1,60,paved ,  
+EL 18 ,10.5,3.3,  ,  ,2,  ,paved ,  
+EL 19 ,11.4,0.9,  ,Historical marker on right ,1,  ,paved ,  
+EL 20 ,11.7,0.3,  ,CR A6 on right ,  ,  ,  ,  
+EL 21 ,12.5,0.8,  ,Santa Fe Trail sign ,  ,  ,  ,  
+EL 22 ,13.7,1.2,  ,"Entering Sapello, Sapello River ",  ,  ,  ,  
+EL 23 ,13.9,0.2,TURNAROUND at Jct NM-94 at Sapello Phillips 66 gas station and follow NM518 back to Las Vegas  ,3 entrances/exits - you may use whichever one you would like to/  is safe to do so to turnaround ,  ,  , paved/ gravel ,fuel 
+EL 24 ,14,0.1,  ,"""Las Vegas 12"", Sapello River ",  ,  ,  ,  
+EL 25 ,16.4,2.4,  ,Historical marker on left ,  ,  ,  ,  

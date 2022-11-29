@@ -5,7 +5,6 @@ sys.path.append(os.path.dirname(sys.path[0]))
 import pytest
 import pandas as pd
 from weather_forecast.get_weather import Weather
-from weather_forecast.config import API_KEY
 
 
 """

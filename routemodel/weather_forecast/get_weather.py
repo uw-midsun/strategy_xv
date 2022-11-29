@@ -4,11 +4,14 @@ import datetime
 import dateutil
 import json
 
-import os.path
-from .config import API_KEY
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 FORECAST_URL_BASE = "https://api.tomorrow.io/v4/timelines"
+API_KEY = os.environ.get("TOMORROW_IO_API_KEY")
 
 
 def timestep_to_minute(timestep):

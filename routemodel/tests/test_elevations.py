@@ -1,13 +1,12 @@
 import sys
-import os.path
+import os
 sys.path.append(os.path.dirname(sys.path[0]))
 
-import pytest
+from dotenv import load_dotenv
 import pandas as pd
 from elevations.elevations import RouteElevation, CoordinateElevation
 
-
-
+load_dotenv()
 
 
 """
@@ -16,11 +15,7 @@ from elevations.elevations import RouteElevation, CoordinateElevation
 - Plotting graph method is not tested
 - Make sure API Key is here
 """
-BING_MAPS_API_KEY = ""
-
-
-
-
+BING_MAPS_API_KEY = os.environ['BING_MAPS_API_KEY']
 
 class Test_RouteElevation():
     coordinates = [
@@ -206,12 +201,12 @@ class Test_CoordinateElevation():
     
     def test_compress_coordinates(self):
         compressed_coordinates = self.route.compress_coordinates(self.route._coordinates)
-        correct_compressed_coordiantes = "2h1507lp2InxnnpGv6ljCw-587Bxz61Bpuz8jG"
+        correct_compressed_coordiantes = ["2h1507lp2InxnnpGv6ljCw-587Bxz61Bpuz8jG"]
         assert compressed_coordinates == correct_compressed_coordiantes
 
 
     def test_build_elevation_data(self):
-        coordinates_elevations_data = self.route.build_elevation_data(self.route._compressed_coordinates)
+        coordinates_elevations_data = self.route.build_elevation_data(self.route._compressed_coordinates_lst)
         correct_coordinates_elevations_data =  [195, 207, 183, 189, 190, 207]
         assert coordinates_elevations_data == correct_coordinates_elevations_data
 

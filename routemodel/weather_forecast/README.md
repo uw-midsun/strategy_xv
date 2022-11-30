@@ -4,10 +4,10 @@ The goal of get_weather.py is to hit the API and collect information on the weat
 
 The functions are implemented in the Weather class. In order for the functions to work, you must get an API key from [Tomorrow.io](https://www.tomorrow.io/weather-api/). 
 
-Then, create a `config.py` file in the same directory as `get_weather.py` and store your API Key as a string.
+The code uses environment variables through `python-dotenv`. To run the code, create a `.env` file and store your API Key as `TOMORROW_IO_API_KEY`.
 
 ```
-API_KEY = '<KEY>'
+TOMORROW_IO_API_KEY = <KEY>
 ``` 
 
 To start using the class, we'll have to initialize an instance of the Weather class inside the python file we are working with.

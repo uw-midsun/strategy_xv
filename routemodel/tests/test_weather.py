@@ -10,7 +10,7 @@ from weather_forecast.get_weather import Weather
 """
 - Test weather forecast functions from /weather_forecast/get_weather.py
 - Retrieving along a route is not tested, however, it is in practice the same as retrieving individual forecasts from each point
-- The API key is retrieved from config.py, refer to the README inside weather_forecast for specifics
+- The API key is retrieved from a .env file, refer to the README inside weather_forecast for specifics
 """
 
 forecast_api = Weather()

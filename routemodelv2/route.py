@@ -31,7 +31,7 @@ polyline_coordinates = [
     (43.46348360838345, -80.53993555488016),
     (43.46266401802443, -80.53908339764159)
     ]
-polyline_coordinates_ASC_BL_2022 = [
+polyline_coordinates_2022_B_Loop = [
     (40.8829378816515, -98.37406855532743),
     (40.88303262290332, -98.37402201117517),
     (40.882921640280436, -98.37347780262579),
@@ -79,7 +79,7 @@ polyline_coordinates_ASC_BL_2022 = [
     ]
 interval_upper_bound = 25
 # route = RouteClass(polyline_coordinates=polyline_coordinates, interval_upper_bound=interval_upper_bound)
-route = RouteClass(polyline_coordinates=polyline_coordinates_ASC_BL_2022, interval_upper_bound=interval_upper_bound)
+route = RouteClass(polyline_coordinates=polyline_coordinates_2022_B_Loop, interval_upper_bound=interval_upper_bound)
 
 
 """
@@ -90,21 +90,21 @@ interval_upper_bound = route.interval_upper_bound
 coordinates = get_coordinates(polyline_coordinates=polyline_coordinates, interval_upper_bound=interval_upper_bound)
 
 route.append_data(coordinates)
-print(route.data())
-# route.get_csv("route0")
-# route.to_database(table_name="route0")
+# print(route.data())
+# route.get_csv("sample_route_step2")
+# route.to_database(table_name="sample_route_step2")
 
 
-# """
-# Step 3: Get elevation info for our route
-# """
-# coordinates = route.coordinate_list()
-# elevations = get_elevations(coordinates=coordinates, BING_MAPS_API_KEY=BING_MAPS_API_KEY)
+"""
+Step 3: Get elevation info for our route
+"""
+coordinates = route.coordinate_list()
+elevations = get_elevations(coordinates=coordinates, BING_MAPS_API_KEY=BING_MAPS_API_KEY)
 
-# route.append_data(elevations)
-# # print(route.data())
-# # route.get_csv("route1")
-# # route.to_database(table_name="route1")
+route.append_data(elevations)
+# print(route.data())
+# route.get_csv("sample_route_step3")
+# route.to_database(table_name="sample_route_step3")
 
 
 """
@@ -114,8 +114,12 @@ IMPORTANT: The start point in the RouteClass route must be the same (or as close
 IMPORTANT: The mapping routebook onto our route data has an accuracy/error upper bound of interval_upper_bound/2 
 """
 trip_distance_list = route.listdata("trip(m)")
-routebook_filepath = "/home/ryanlam/Desktop/strategy_xv/routemodelv2/routebook/2022_B_Loop.csv"
-print(map_routebook_data(trip_distance_list=trip_distance_list, routebook_filepath=routebook_filepath))
+routebook_filepath = "/home/ryanlam/Desktop/strategy_xv/routemodelv2/sample_data/2022_B_Loop.csv"
+bypass_dist_error = True # set to False when not in dev
+mapped_routebook = map_routebook_data(trip_distance_list=trip_distance_list, routebook_filepath=routebook_filepath, bypass_dist_error=bypass_dist_error)
 
-
+route.append_data(mapped_routebook)
+# print(route.data())
+route.get_csv("sample_route_step4")
+# route.to_database(table_name="sample_route_step4")
 

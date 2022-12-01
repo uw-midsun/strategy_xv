@@ -16,13 +16,14 @@ def get_elevations(coordinates: list, BING_MAPS_API_KEY: str) -> pd.DataFrame:
 
 
     """
-    1) "Chunk" coordinates into lists of length 10000. Change limit if there's an API size issue
+    1) "Chunk" coordinates into lists of length 10000. Change list_len if there's an API size issue
     2) Compresses each coordinate chunk into 1 compressed query string for Bing Maps API
     - https://learn.microsoft.com/en-us/bingmaps/rest-services/elevations/point-compression-algorithm
     - Requires: coordinates
     - Result: compressed_coordinates_lst
     """
-    split_coordinates = [coordinates[i:min(i+10000, len(coordinates))] for i in range(0, len(coordinates), 10000)]
+    list_len = 100
+    split_coordinates = [coordinates[i:min(i+list_len, len(coordinates))] for i in range(0, len(coordinates), list_len)]
     compressed_coordinates_lst = []
 
     for coordinate_lst in split_coordinates:

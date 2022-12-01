@@ -25,7 +25,7 @@ def get_coordinates(polyline_coordinates: list, interval_upper_bound: int) -> pd
     if interval_upper_bound < 10:
         raise TypeError("Due to accuracy issues with the API, the interval upper bound must be at least 10m")
     elif interval_upper_bound < 50:
-        warnings.warn("Due to accuracy issues with the API, it is recommended that the interval upper bound be at least 50m ")
+        warnings.warn("Due to accuracy issues with the API, it is recommended that the interval upper bound be at least 50m\n")
     if len(polyline_coordinates) < 3:
         raise TypeError("coordinate_lst must have at least 3 coordinates")
 

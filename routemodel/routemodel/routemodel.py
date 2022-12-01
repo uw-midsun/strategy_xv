@@ -40,9 +40,9 @@ class RouteModel():
         self._data = None
         
         if self._interval_upper_bound < 10:
-            raise TypeError("Due to accuracy issues with the API, the interval upper bound must be at least 10m")
+            raise TypeError("Due to accuracy issues with the API, the interval upper bound must be at least 10m\n")
         elif self._interval_upper_bound < 50:
-            warnings.warn("Due to accuracy issues with the API, it is recommended that the interval upper bound be at least 50m ")
+            warnings.warn("Due to accuracy issues with the API, it is recommended that the interval upper bound be at least 50m\n")
 
         if len(self._coordinate_lst_input) < 3:
             raise TypeError("coordinate_lst must have at least 3 coordinates")

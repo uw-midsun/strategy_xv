@@ -10,6 +10,12 @@ MYSQL_USER = os.getenv("MYSQL_USER")
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
 
 
+class DatabaseError(Exception):
+    pass
+
+class ColumnError(Exception):
+    pass
+
 
 class RouteClass():
 
@@ -75,6 +81,20 @@ class RouteClass():
             return None
 
 
+    def listdata(self, column_name):
+        """
+        listdata returns a column of data as a list
+        @param column_name: the name of the column you wish to get as a list
+        @return: list of the column's data
+        """
+        data = self._data
+        if data is not None:
+            try:
+                return data[column_name].tolist()
+            except:
+                raise ColumnError(f"'{column_name}' column does not exist")
+                
+
     def get_csv(self, filename = "data"):
         """
         get_csv is a method to save RouteClass's current data into a csv file
@@ -96,7 +116,7 @@ class RouteClass():
         @param mysql_host: where the mysql database is hosted
         @param mysql_user: mysql username
         @param mysql_password: mysql password
-        @return: {'success': True} if successfully wrote to database, else {'success': False}
+        @return: None
         """
         engine = create_engine(f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}/{database_name}")
         data = self._data.fillna('')
@@ -105,8 +125,6 @@ class RouteClass():
             response = data.to_sql(name=table_name, con=engine, if_exists=if_exists, method="multi")
 
             rowcount = data.shape[0]
-            if rowcount == response:
-                return {"success": True}
-            else:
-                return {"success": False}
+            if rowcount != response:
+                raise DatabaseError(f"dataframe was not successfully inserted into the '{table_name}' table in the {database_name} database")
 

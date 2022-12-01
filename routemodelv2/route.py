@@ -6,6 +6,7 @@ import pandas as pd
 from RouteClass import RouteClass
 from coordinates.get_coordinates import get_coordinates
 from elevations.get_elevations import get_elevations
+from routebook.map_routebook_data import map_routebook_data
 import time
 t0 = time.time()
 t1 = time.time()
@@ -47,13 +48,27 @@ route.append_data(coordinates)
 # route.to_database(table_name="route0")
 
 
-"""
-Step 3: Get elevation info for our route
-"""
-coordinates = route.coordinate_list()
-elevations = get_elevations(coordinates=coordinates, BING_MAPS_API_KEY=BING_MAPS_API_KEY)
+# """
+# Step 3: Get elevation info for our route
+# """
+# coordinates = route.coordinate_list()
+# elevations = get_elevations(coordinates=coordinates, BING_MAPS_API_KEY=BING_MAPS_API_KEY)
 
-route.append_data(elevations)
-# print(route.data())
-# route.get_csv("route1")
-# route.to_database(table_name="route1")
+# route.append_data(elevations)
+# # print(route.data())
+# # route.get_csv("route1")
+# # route.to_database(table_name="route1")
+
+
+"""
+Step 4: Map routebook data to RouteClass data
+IMPORTANT: The route in RouteClass must be as percise as possible
+IMPORTANT: The start point in the RouteClass route must be the same (or as close) as the routebook start point
+IMPORTANT: The mapping routebook onto our route data has an accuracy/error upper bound of interval_upper_bound/2 
+"""
+trip_distance_list = route.listdata("trip(m)")
+routebook_filepath = "/home/ryanlam/Desktop/strategy_xv/routemodelv2/routebook/SegmentDLoop.csv"
+print(map_routebook_data(trip_distance_list=trip_distance_list, routebook_filepath=routebook_filepath))
+
+
+

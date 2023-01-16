@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  midsun_dev_db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: "midsun_dev_db"
+      # DO NOT USE THESE CREDENTIALS IN PROD, THESE ARE FOR LOCAL DEV ONLY
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - midsun_dev_db:/var/lib/mysql
+
+volumes:
+  midsun_dev_db:

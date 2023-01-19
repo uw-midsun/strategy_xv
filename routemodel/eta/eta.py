@@ -282,7 +282,8 @@ class ETA():
                 f.close()
             return True
         except:
-            print("(eta.py) There was an issue with updating the location.")
+            print("(eta.py) There was an issue with updating the location.\
+            \n for reference, the program attempted to open", os.path.join(os.path.abspath(__file__), "..", "current_location.txt"))
             return False
 
     def check_geofence(self, clat, clon, plat, plon):

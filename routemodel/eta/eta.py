@@ -275,13 +275,15 @@ class ETA():
 
     def update_location(self):
         try:
-            with open("./routemodel/eta/current_location.txt", "r") as f:
+            with open(os.path.join(os.path.abspath(__file__), "..", "current_location.txt"), "r") as f:
                 lat, lon = map(float, f.readline().split(', '))
                 self.lat = lat
                 self.lon = lon
                 f.close()
+            return True
         except:
             print("(eta.py) There was an issue with updating the location.")
+            return False
 
     def check_geofence(self, clat, clon, plat, plon):
         '''

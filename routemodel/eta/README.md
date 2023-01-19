@@ -81,6 +81,9 @@ The `get_eta` method returns a list of `float` values representing the time it t
 
 The method by which the ETA class determines the car's current location. Currently, the method just reads from a text file, however, this should be replaced with the appropriate code when available.
 
+### **Return Value**
+Returns `True` if the update was successful, otherwise it returns `False`.
+
 ## `update_checkpoint(lat=None, lon=None, full_scan=True)`
 
 The `update_checkpoint` method will check if the car has passed any checkpoints and use that information in future `get_eta` calls. The method accepts the following parameters:

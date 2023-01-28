@@ -13,7 +13,7 @@ async def display_graph(csv):
     fig.show()
 
 
-async def graph_thread():
+async def graph_process():
     # Init message
     print('\nPress Ctrl-C to quit at anytime!\n')
 
@@ -23,5 +23,5 @@ async def graph_thread():
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.create_task(graph_thread())
+    loop.create_task(graph_process())
     loop.run_forever()

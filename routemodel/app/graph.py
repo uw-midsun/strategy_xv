@@ -44,8 +44,6 @@ def update_graph_scatter(csv):
         mode='lines+markers'
     )
 
-    print("hello")
-
     return {'data': [data],
             'layout': go.Layout(xaxis=dict(range=[min(df["polyline_point_index"]),
                                                   max(df["polyline_point_index"])]), yaxis=dict(range=[min(df["elevation(m)"]), max(df["elevation(m)"])]), )}

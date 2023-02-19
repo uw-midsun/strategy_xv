@@ -1,6 +1,8 @@
 from email import header
 import pandas as pd
 
+import random # for dummy function
+
 
 def numOfTurns(data):
     '''
@@ -40,30 +42,8 @@ def totalTimeAndSpeed(data, totalDistance):
     averageSpeed = totalDistance / totalTime
     return totalTime, averageSpeed
 
-def convertData(file):
-    '''
-    This function takes in a csv file in the format of route descriptions on the route book and
-    creates a csv file with the following properties calculate:
-        Cumulative Distance(Miles)
-        Major turns
-        Number of stops
-        Level 1 Turns (Easy)
-        Level 2 turns (Medium)
-        Level 3 Turns (Hard)
-        Average Speed
-        Estimated Completion Time
-        Current Status
-    It will also return a pandas dataframe with the same information
-    '''
 
-    data = pd.read_csv(file)
-    column = ["Cumulative Distance(Miles)", "Major Turns", "Number of stops", "Level 1 Turns (Easy)", "Level 2 Turns (Medium)"
-            "Level 2 turns (Medium)", "Level 3 Turns (Hard)", "Average Speed", "Estimated Completion Time", "Current Status"]
-    
-    loopData = []
-    data.at[0, "Int"] = 0
-    
-    # Clean speed data 
+def cleanSpeedData(data):
     prev = 0
     for speed in data['Spd']:
         if speed != "  ":
@@ -78,6 +58,28 @@ def convertData(file):
         else:
             prev = row["Spd"]
 
+def convertData(file):
+    '''
+    This function takes in a csv file in the format of route descriptions on the route book and
+    creates a csv file with the following properties calculate:
+        Cumulative Distance (Miles)
+        Major turns
+        Number of stops
+        Level 1 Turns (Easy)
+        Level 2 Turns (Medium)
+        Level 3 Turns (Hard)
+        Average Speedw
+        Estimated Completion Time
+        Current Status
+    It will also return a pandas dataframe with the same information
+    '''
+    data = pd.read_csv(file)
+    columns = ["Loop Name", "Cumulative Distance (Miles)", "Major Turns", "Number of stops", "Level 1 Turns (Easy)", "Level 2 Turns (Medium)", 
+                "Level 3 Turns (Hard)", "Average Speed", "Estimated Completion Time", "Current Status"]
+    
+    loopData = []
+    loopData.append(file)
+    data.at[0, "Int"] = 0
 
     # Total distance
     totalDistance = float(data["Trip"][len(data["Trip"])-1])
@@ -97,12 +99,63 @@ def convertData(file):
     loopData.append("N/A")
 
     # Calculate time and speed
+    cleanSpeedData(data) # Clean speed data
     totalTime, averageSpeed = totalTimeAndSpeed(data, totalDistance)
     loopData.append(averageSpeed)
     loopData.append(totalTime)
     loopData.append("N/A")
 
-    print(loopData)
-    df = pd.DataFrame([loopData], columns=column)
+    # print(loopData)
+    df = pd.DataFrame([loopData], columns=columns)
     df.to_csv(file.split(".")[0] + "Converted" + ".csv")
     return df
+
+
+def constBenefit(cumDistance, majorTurns, stops, level1, level2, level3, avgSpeed, compTime, Status):
+    """
+    Given the following information:
+    Cumulative Distance(Miles)
+    Major turns
+    Number of stops
+    Level 1 Turns (Easy)
+    Level 2 Turns (Medium)
+    Level 3 Turns (Hard)
+    Average Speed
+    Estimated Completion Time
+    Current Status
+
+    constBenefit calculate the benefit cost score based
+        on the details mentioned in the benefit cost score page.
+    """
+    return random.randrange(1, 10)
+
+
+def convertMultipleData(files):
+    '''
+    Takes in a list of file paths to CSVs in the format of route descriptions on the route book,
+    converts the data using convertData, and THEN combines the result into a single
+    CSV and returns a dataframe with the same information
+    
+    @params files: List of strings representing files paths to CSVs
+    '''
+    dfs = [convertData(file) for file in files]
+    combined = pd.concat(dfs, ignore_index=True)
+    combined.to_csv(r"data\CombinedConverted.csv")
+    return combined
+
+def scoreRankLoops(loopData):
+    '''
+    Takes in a combined dataframe of converted data for each loop, scores each loop,
+    and returns a dataframe with each loop sorted from highest benefit cost score to least
+
+    @params loopData: pandas dataframe of converted loop data
+    '''
+    scored = loopData.copy()
+    scores = [constBenefit(loop["Cumulative Distance (Miles)"], loop["Major Turns"], loop["Number of stops"], loop["Level 1 Turns (Easy)"], 
+                            loop["Level 2 Turns (Medium)"], loop["Level 3 Turns (Hard)"], loop["Average Speed"], loop["Estimated Completion Time"], loop["Current Status"]) 
+                for idx, loop in loopData.iterrows()]
+
+    scored["Benefit Cost Score"] = scores
+    scored = scored.sort_values(by=["Benefit Cost Score"], ascending=False, kind="mergesort")
+    scored.to_csv(r"data\CombinedConvertedScored.csv")
+    return scored

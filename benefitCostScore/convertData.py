@@ -1,7 +1,6 @@
 from email import header
 import pandas as pd
-
-import random # for dummy function
+from benefit_cost_score import costBenefit
 
 
 def numOfTurns(data):
@@ -111,25 +110,6 @@ def convertData(file):
     return df
 
 
-def constBenefit(cumDistance, majorTurns, stops, level1, level2, level3, avgSpeed, compTime, Status):
-    """
-    Given the following information:
-    Cumulative Distance(Miles)
-    Major turns
-    Number of stops
-    Level 1 Turns (Easy)
-    Level 2 Turns (Medium)
-    Level 3 Turns (Hard)
-    Average Speed
-    Estimated Completion Time
-    Current Status
-
-    constBenefit calculate the benefit cost score based
-        on the details mentioned in the benefit cost score page.
-    """
-    return random.randrange(1, 10)
-
-
 def convertMultipleData(files):
     '''
     Takes in a list of file paths to CSVs in the format of route descriptions on the route book,
@@ -151,8 +131,16 @@ def scoreRankLoops(loopData):
     @params loopData: pandas dataframe of converted loop data
     '''
     scored = loopData.copy()
-    scores = [constBenefit(loop["Cumulative Distance (Miles)"], loop["Major Turns"], loop["Number of stops"], loop["Level 1 Turns (Easy)"], 
+
+    # THe number of turns at each level is still being filled with "N/A" so I've put in dummy values for now
+    '''
+    scores = [costBenefit(loop["Cumulative Distance (Miles)"], loop["Major Turns"], loop["Number of stops"], loop["Level 1 Turns (Easy)"], 
                             loop["Level 2 Turns (Medium)"], loop["Level 3 Turns (Hard)"], loop["Average Speed"], loop["Estimated Completion Time"], loop["Current Status"]) 
+                for idx, loop in loopData.iterrows()]
+    '''
+            
+    scores = [costBenefit(loop["Cumulative Distance (Miles)"], loop["Major Turns"], loop["Number of stops"], 1, 
+                            1, 1, loop["Average Speed"], loop["Estimated Completion Time"], loop["Current Status"]) 
                 for idx, loop in loopData.iterrows()]
 
     scored["Benefit Cost Score"] = scores

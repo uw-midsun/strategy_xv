@@ -44,6 +44,7 @@ def totalTimeAndSpeed(data, totalDistance):
 
 
 def cleanSpeedData(data):
+    data.at[0, "Int"] = 0
     prev = 0
     for speed in data['Spd']:
         if speed != "  ":
@@ -79,7 +80,6 @@ def convertData(file):
     
     loopData = []
     loopData.append(file)
-    data.at[0, "Int"] = 0
 
     # Total distance
     totalDistance = float(data["Trip"][len(data["Trip"])-1])

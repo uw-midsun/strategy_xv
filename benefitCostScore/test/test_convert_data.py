@@ -9,10 +9,10 @@ def test_loops():
     column = ["Loop Name", "Cumulative Distance (Miles)", "Major Turns", "Number of stops", "Level 1 Turns (Easy)", "Level 2 Turns (Medium)", 
                 "Level 3 Turns (Hard)", "Average Speed", "Estimated Completion Time", "Current Status"]
     
-    loopOne = ["data/SegmentBLoop.csv", 21.9, 10, 3, 'N/A', 'N/A', 'N/A', 45.76204315565586, 0.4785625485625485, 'N/A']
-    loopTwo = ["data/SegmentDLoop.csv", 40.7, 8, 2, 'N/A', 'N/A', 'N/A', 56.830527323240716, 0.7161643911643915, 'N/A']
-    loopThree = ["data/SegmentELoop.csv", 16.4, 5, 4, 'N/A', 'N/A', 'N/A', 52.44186046511628, 0.3127272727272727, 'N/A']
-    combined = ["data/CombinedTest.csv", 79.0, 23, 9, 'N/A', 'N/A', 'N/A', 52.36763616791372, 1.5085653235653254, 'N/A']
+    loopOne = ["benefitCostScore/data/SegmentBLoop.csv", 21.9, 10, 3, 'N/A', 'N/A', 'N/A', 45.76204315565586, 0.4785625485625485, 'N/A']
+    loopTwo = ["benefitCostScore/data/SegmentDLoop.csv", 40.7, 8, 2, 'N/A', 'N/A', 'N/A', 56.830527323240716, 0.7161643911643915, 'N/A']
+    loopThree = ["benefitCostScore/data/SegmentELoop.csv", 16.4, 5, 4, 'N/A', 'N/A', 'N/A', 52.44186046511628, 0.3127272727272727, 'N/A']
+    combined = ["benefitCostScore/data/CombinedTest.csv", 79.0, 23, 9, 'N/A', 'N/A', 'N/A', 52.36763616791372, 1.5085653235653254, 'N/A']
 
 
     pd.testing.assert_frame_equal(convertData(r"benefitCostScore/data/SegmentBLoop.csv"), pd.DataFrame([loopOne], columns=column))

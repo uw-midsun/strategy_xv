@@ -15,19 +15,19 @@ def test_loops():
     combined = ["data/CombinedTest.csv", 79.0, 23, 9, 'N/A', 'N/A', 'N/A', 52.36763616791372, 1.5085653235653254, 'N/A']
 
 
-    pd.testing.assert_frame_equal(convertData(r"data/SegmentBLoop.csv"), pd.DataFrame([loopOne], columns=column))
-    pd.testing.assert_frame_equal(convertData(r"data/SegmentDLoop.csv"), pd.DataFrame([loopTwo], columns=column))
-    pd.testing.assert_frame_equal(convertData(r"data/SegmentELoop.csv"), pd.DataFrame([loopThree], columns=column))
-    pd.testing.assert_frame_equal(convertData(r"data/CombinedTest.csv"), pd.DataFrame([combined], columns=column))
+    pd.testing.assert_frame_equal(convertData(r"benefitCostScore/data/SegmentBLoop.csv"), pd.DataFrame([loopOne], columns=column))
+    pd.testing.assert_frame_equal(convertData(r"benefitCostScore/data/SegmentDLoop.csv"), pd.DataFrame([loopTwo], columns=column))
+    pd.testing.assert_frame_equal(convertData(r"benefitCostScore/data/SegmentELoop.csv"), pd.DataFrame([loopThree], columns=column))
+    pd.testing.assert_frame_equal(convertData(r"benefitCostScore/data/CombinedTest.csv"), pd.DataFrame([combined], columns=column))
 
 def test_stats():
-    loopB = pd.read_csv(r"data/SegmentBLoop.csv")
+    loopB = pd.read_csv(r"benefitCostScore/data/SegmentBLoop.csv")
     cleanSpeedData(loopB)
 
-    loopD = pd.read_csv(r"data/SegmentDLoop.csv")
+    loopD = pd.read_csv(r"benefitCostScore/data/SegmentDLoop.csv")
     cleanSpeedData(loopD)
 
-    loopE = pd.read_csv(r"data/SegmentELoop.csv")
+    loopE = pd.read_csv(r"benefitCostScore/data/SegmentELoop.csv")
     cleanSpeedData(loopE)
 
     ## number of turns

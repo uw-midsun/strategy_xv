@@ -164,6 +164,6 @@ def scoreRankLoops(loopData):
                 for idx, loop in loopData.iterrows()]
 
     scored["Benefit Cost Score"] = scores
-    scored = scored.sort_values(by=["Benefit Cost Score"], ascending=False, kind="mergesort")
+    scored = scored.sort_values(by=["Benefit Cost Score"], ascending=False, kind="mergesort").reset_index(drop=True)
     scored.to_csv(r"data\CombinedConvertedScored.csv")
     return scored

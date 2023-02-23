@@ -275,10 +275,8 @@ class ETA():
 
     def update_location(self):
         try:
-            with os.scandir(os.path.join(os.path.abspath(__file__), os.pardir)) as entries:
-                for entry in entries:
-                    print(entry.name)
-            with open(os.path.join(os.path.abspath(__file__), os.pardir, "current_location.txt"), "r") as f:
+            current_loc_path = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir, "current_location.txt"))
+            with open(current_loc_path, "r") as f:
                 lat, lon = map(float, f.readline().split(', '))
                 self.lat = lat
                 self.lon = lon

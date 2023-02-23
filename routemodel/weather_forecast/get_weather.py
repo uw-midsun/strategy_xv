@@ -116,7 +116,7 @@ class Weather:
 
     def process_weather_timelines_json(self, lat, lon, timestep, timelines_json):
         """
-        Takes the JSON returned by the API and retyrbs data as a list of dicts
+        Takes the JSON returned by the API and returns data as a list of dicts
         @param lat: string containing latitude value
         @param lon: string containing longitude value
         @param timestep: string containing the timestep of each forecast
@@ -196,4 +196,5 @@ class Weather:
         return self.get_weather(lat, lon, "1d", "7d")
 
     def get_weather_14d(self, lat, lon):
-        return self.get_weather(lat, lon, "1d", "14d")
+        return self.get_weather(lat, lon, "1d", "14d")    
+        

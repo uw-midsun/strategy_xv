@@ -19,7 +19,7 @@ The class constructor is defined as follows
 
 `def __init__(self, units = "metric", requested_fields=[])`
 
-The class accepts two optional parameters, `units` and `fields`. The variable `units` can either be set to `"metric"` or `"imperial"`, but by default it will be set to `"metric"`. The `fields` parameter must be a list of strings taken from valid [API data fields](https://docs.tomorrow.io/reference/data-layers-core). By default, the `fields` variable will be filled out with a pre-set list of fields. The chosen defaults can be found in the return values of the `get_weather` function (see below).
+The class accepts two optional parameters, `units` and `requested_fields`. The variable `units` can either be set to `"metric"` or `"imperial"`, but by default it will be set to `"metric"`. The `requested_fields` parameter must be a list of strings taken from valid [API data fields](https://docs.tomorrow.io/reference/data-layers-core). By default, the `requested_fields` variable will be filled out with a pre-set list of fields. The chosen defaults can be found in the return values of the `get_weather` function (see below).
 
 Outside of the initialization, the fields can also be set using
 

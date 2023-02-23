@@ -2,15 +2,29 @@ import sys
 import os.path
 sys.path.append(os.path.dirname(sys.path[0]))
 
-import geopy
-from geopy.distance import distance as geodist
-from geographiclib.geodesic import Geodesic
-from routemodel.routemodel import RouteModel
 import pandas as pd
+import datetime
 
-# Extra dependencies for Ryan's get_coordinates method
+# Dependencies for the general functions
 from pyproj import Geod
 import math
+from geographiclib.geodesic import Geodesic
+
+# General tools that should be moved over to tools.py following the overhaul
+# These tools are outside of the class because they are 
+
+route = [
+    [43.46786317655638, -80.56637564010215],
+    [43.48175280991097, -80.52637854159468],
+    [43.48536483714299, -80.5270651870626],
+    [43.48511573875007, -80.52869597004897],
+    [43.48536483714299, -80.52989759961787],
+    [43.48604985242712, -80.5304984144023],
+    [43.48816712335336, -80.5320433668198],
+    [43.489910702452285, -80.53461828732458],
+    [43.49196557034531, -80.53762236124682],
+    [43.494347261633344, -80.5482439084337]
+]
 
 def get_coordinates(polyline_coordinates: list, interval_upper_bound: int) -> pd.DataFrame:
     """
@@ -212,179 +226,109 @@ def get_coordinates(polyline_coordinates: list, interval_upper_bound: int) -> pd
     })
     return data
 
-class ETA():
-    def __init__(self, route, lat=0, lon=0):
-        """
-            Route refers to the points that model the race path, it can use as many points as necessary
-            Checkpoints refer to the condensed race route which has been split into 'x' km increments
-        """
-        self.lat = lat
-        self.lon = lon
-
-        self.route = route
-
-        self.route_model = get_coordinates(polyline_coordinates=route, interval_upper_bound=25)
-        self.checkpoint_frequency = 1000 # meters
-        self.generate_checkpoints(self.checkpoint_frequency)
-        self.current_checkpoint = 0
-
-        self.eta = []
-        self.speed = 5 # Speed in km/h
-
-    def build_distance_between_coordinates(self, coordinates: list):
-        """
-        Determines the distance between coordinate/point n and coordinate/point n+1
-        @param coordinates: list of (lat, long) coordinate tuples
-        @return: List of n-1 length where the i-th entry represents the distance between coordinate/point n and n+1
-        """
-        if len(coordinates) < 2:
-            raise ValueError("'distance_between_coordinates' function requires at least 2 coordinates")
-
-        distance_between_coordinates = []
-        for i, coordinate in enumerate(coordinates[1:], start=1):
-            distance = round(geodist(coordinates[i-1], coordinates[i]).m, 2)
-            distance_between_coordinates.append(distance/1000)
-
-        return distance_between_coordinates
-    
-    def generate_checkpoints(self, freq):
+def generate_checkpoints(freq):
         """
         Generates 'checkpoints' which are {freq} meters apart where weather and other API calls can be made from
         @param freq: the distance in meters between each generated checkpoint
         @return: List of coordinates representing each of the checkpoints
         """
 
-        self.checkpoint_coords = [] 
-        self.checkpoint_index = []
+        route_model = get_coordinates(polyline_coordinates=route, interval_upper_bound=25)
+
+        checkpoint_coords = [] 
         checkpoint = [] # Stores the index of the last checkpoint passed for any given route model point
 
         lst_checkpoint = -1
 
-        for index, row in self.route_model.iterrows():
+        for index, row in route_model.iterrows():
             cur_checkpoint = int(row['trip(m)'] // freq)
             if cur_checkpoint != lst_checkpoint: 
-                self.checkpoint_coords.append([row['latitude'], row['longitude']])
-                self.checkpoint_index.append(index)
+                checkpoint_coords.append([row['latitude'], row['longitude']])
             
             checkpoint.append(cur_checkpoint)
             lst_checkpoint = cur_checkpoint
 
-        self.route_model['checkpoint'] = checkpoint
-        
-        return self.checkpoint_coords
+        route_model['checkpoint'] = checkpoint
 
-    def update_location(self):
+        checkpoint_model = pd.DataFrame(checkpoint_coords, columns=["latitude", "longitude"])
+        checkpoint_model['last_updated'] = float('nan')
+        checkpoint_model['forecast_time'] = float('nan')
+
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+
+        route_model.to_csv(os.path.join(dir_path, 'route_model_db.csv')) # First database schema for route model
+        checkpoint_model.to_csv(os.path.join(dir_path, 'checkpoint_model_db.csv'), index=False) # Checkpoint database, the weather fields are added when
+        
+        return checkpoint_coords
+
+class CheckpointWeather():
+    def __init__(self, forecaster, database_name):
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        self.database_path = os.path.join(dir_path, database_name)
+
+        self.checkpoint_model = pd.read_csv(self.database_path)
+
+        self.forecaster = forecaster
+        self.weather_fields = self.forecaster.get_requested_fields()
+
+        # NOTE: Adds weather fields to the checkpoint model, in future iterations this should be moved into general tooling
+        for field in self.weather_fields:
+            self.checkpoint_model[field] = float('nan')
+        
+        self.save_checkpoint_db('checkpoint_model_db.csv')
+
+    def get_checkpoint_weather(self, checkpoint_idx):
+        '''
+        Retrieves forecast data given a checkpoint index
+        @param checkpoint_idx: integer representing the index we want to update
+        '''
+        clat = self.checkpoint_model.loc[checkpoint_idx, 'latitude']
+        clon = self.checkpoint_model.loc[checkpoint_idx, 'longitude']
+
+        # Returns 1 data entry containing a 30m forecast
+        return self.forecaster.get_weather_1h(clat, clon)
+        
+    def update_checkpoint_weather(self, checkpoint_idx):  
+        '''
+        Given a checkpoint index, update its value in the database with the current forecast
+        @param checkpoint_idx: integer representing the index we want to update
+        '''
         try:
-            current_loc_path = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir, "current_location.txt"))
-            with open(current_loc_path, "r") as f:
-                lat, lon = map(float, f.readline().split(', '))
-                self.lat = lat
-                self.lon = lon
-                f.close()
+            # We will only consider the current forecast so we will use [0], however, if we need to get a forecast for 30m in the future, for example, then we would use [2] 
+            forecast = self.get_checkpoint_weather(checkpoint_idx)[0]
+            forecast_start_time = forecast[0]
+            weather_data = forecast[2]
+
+            self.checkpoint_model.loc[checkpoint_idx, 'last_updated'] = datetime.datetime.utcnow().isoformat()
+            self.checkpoint_model.loc[checkpoint_idx, 'forecast_time'] = forecast_start_time
+
+            for field, val in weather_data.items():
+                if field == 'latitude' or field == 'longitude': 
+                    continue
+                if field in self.checkpoint_model.columns:
+                    self.checkpoint_model.loc[checkpoint_idx, field] = val
+
+            self.save_checkpoint_db('checkpoint_model_db.csv')
+
             return True
         except:
-            print("(eta.py) There was an issue with updating the location.\
-            \nFor reference, the program attempted to open", os.path.join(os.path.abspath(__file__), os.pardir, "current_location.txt"))
+            print("(checkpoint_weather.py) An issue occurred while updating the checkpoint model database")
             return False
 
-    def check_geofence(self, clat, clon, plat, plon):
+    def save_checkpoint_db(self, file_name):
         '''
-        Checks if the given lat/lon is within a 600m box of a specified point
+        Writes the current checkpoint model to a .csv
+        @param file_name: string contianing the file name that should be saved
         '''
-        wb = geodist(kilometers = 0.3).destination(point=geopy.Point(plat, plon), bearing = 270).longitude
-        sb = geodist(kilometers = 0.3).destination(point=geopy.Point(plat, plon), bearing = 180).latitude
-        eb = geodist(kilometers = 0.3).destination(point=geopy.Point(plat, plon), bearing = 90).longitude
-        nb = geodist(kilometers = 0.3).destination(point=geopy.Point(plat, plon), bearing = 0).latitude
+        self.checkpoint_model.to_csv(self.database_path)
 
-        c1 = (sb < clat) and (clat < nb)
-        c2 = (wb < clon) and (clon < eb)
-
-        return (c1 and c2)
-
-    def find_closest_point(self, lat, lon):
+    def print_checkpoint_model(self):
         '''
-        The function takes in a coordinate point (lat/lon) and finds the closest point to it inside the route model 
-        @param lat: float representing the latitude
-        @param lon: float representing the longitude
-        @return: a row of the route_model dataframe containing information about the closest point on the race route
+        Prints the checkpoint model to console
         '''
+        print("\n\n==================================\n")
+        print(self.checkpoint_model)
+        print("\n==================================\n\n")
 
-        distances = self.route_model.apply(lambda row: geodist((lat, lon), (row['latitude'], row['longitude'])).meters, axis=1)
-        return self.route_model.iloc[distances.idxmin()]
 
-    def update_checkpoint(self, lat = None, lon = None, full_scan = True):
-        '''
-        update_checkpoint() is a function that determines which segment of the race the car is on based on the current lat/lon.
-        When full_scan == true, a brute force method is used to check for the closest point.
 
-        @param lat: float representing the latitude, an automatic location update is done if it is not provided
-        @param lon: float representing the longitude, an automatic location update is done if it is not provided
-        @param full_scan: boolean that determines which method is used to update the checkpoint
-        '''
-        # If update racepoint is called with lat/lon given
-        if lat and lon:
-            self.lat = lat
-            self.lon = lon
-        else:
-            self.update_location()
-
-        # Brute Force on larger points dataset
-        if full_scan:
-            closest_point = self.find_closest_point(self.lat, self.lon)
-            self.current_checkpoint = closest_point['checkpoint']
-            print(self.current_checkpoint)
-
-        else:
-            i = self.current_checkpoint
-            if i+1 < len(self.checkpoint_coords):
-                plat, plon = self.checkpoint_coords[i+1]
-                if self.check_geofence(self.lat, self.lon, plat, plon) == True:
-                    self.current_checkpoint = i+1
-
-    def get_next_checkpoint_coordinates(self):
-        """
-        @return: a list containing a lat/lon pair with the coordinates of the next checkpoint
-        """
-        i = self.current_checkpoint
-        if i+1 < len(self.current_checkpoint):
-            return self.checkpoint_coords[i+1]
-        else:
-            return []
-
-    def get_checkpoints_coordinates(self):
-        return self.checkpoints_coords
-        
-    def get_eta(self):
-        """
-        @return: a list of float values representing the time it takes to reach the checkpoints
-        """
-        
-        next_closest_checkpoint = self.current_checkpoint+1
-        n = len(self.checkpoint_coords)
-        eta = [-1 for _ in range(n)]
-
-        if next_closest_checkpoint >= n: 
-            self.eta = eta
-            return self.eta
-
-        print(self.route_model)
-
-        slat = self.lat
-        slon = self.lon
-        elat = self.checkpoint_coords[next_closest_checkpoint][0]
-        elon = self.checkpoint_coords[next_closest_checkpoint][1]
-
-        dist_to_next_checkpoint = geodist((slat, slon), (elat, elon)).meters
-        # Unit conversion is to put meters into kilometers and time into minutes
-        eta[next_closest_checkpoint] =  (dist_to_next_checkpoint/1000) / self.speed * 60 
-
-        for future_checkpoint in range(next_closest_checkpoint+1, n):
-            a = self.checkpoint_index[next_closest_checkpoint]
-            b = self.checkpoint_index[future_checkpoint]
-
-            # Unit conversion is to put meters into kilometers and time into minutes
-            eta_next_to_future = ((self.route_model.iloc[b].loc['trip(m)'] - self.route_model.iloc[a].loc['trip(m)'])/1000) / self.speed * 60
-            eta[future_checkpoint] = eta[next_closest_checkpoint] + eta_next_to_future
-
-        self.eta = eta
-        return eta

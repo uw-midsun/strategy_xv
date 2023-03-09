@@ -10,7 +10,7 @@ def hello_name():
     return render_template('test_template.html')
 
 
-@app.route('/', methods=['GET'])
+@app.route('/csv', methods=['GET'])
 def get_csv():
     csv_file = open(csv_dir)
 

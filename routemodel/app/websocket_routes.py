@@ -11,13 +11,6 @@ import csv
 app = Quart(__name__)
 csv_dir = "./sample_route_step4.csv"
 
-@app.websocket("/random_data")
-async def random_data():
-    while True:
-        output = json.dumps([random.random() for _ in range(10)])
-        # print(type(output))
-        await websocket.send(output)
-        await asyncio.sleep(1)
 
 @app.websocket("/trip_elevation")
 async def update_graph_scatter_elevation():
@@ -50,7 +43,7 @@ def update_graph_scatter(name, x_axis, y_axis):
     data = {"datas": {
     'mode': 'lines+markers',
     'name': 'Scatter',
-     'x' : df[x_axis].to_list(),
+     'x' : df[x_axis].to_list(), # [20, 30 ,40]
      'y' : df[y_axis].to_list(),
         },
     "layout": {'title': "MSXV Data: " + str(x_axis) + "-" + str(y_axis), 'x_axis_range': [min(df[x_axis]), max(df[x_axis])],

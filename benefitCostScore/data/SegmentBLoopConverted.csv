@@ -1,2 +1,2 @@
-,Cumulative Distance(Miles),Major Turns,Number of stops,Level 1 Turns (Easy),Level 2 Turns (Medium)Level 2 turns (Medium),Level 3 Turns (Hard),Average Speed,Estimated Completion Time,Current Status
-0,21.9,10,3,N/A,N/A,N/A,45.76204315565586,0.4785625485625485,N/A
+,Loop Name,Cumulative Distance (Miles),Major Turns,Number of stops,Level 1 Turns (Easy),Level 2 Turns (Medium),Level 3 Turns (Hard),Average Speed,Estimated Completion Time,Current Status
+0,benefitCostScore/data/SegmentBLoop.csv,21.9,10,3,N/A,N/A,N/A,45.76204315565586,0.4785625485625485,N/A

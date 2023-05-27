@@ -1,12 +1,8 @@
-from convertData import convertData
-import pandas as pd
+from convertData import convertMultipleData, scoreRankLoops
 
-loopOne = convertData(r"strategy_xv\benefitCostScore\data\SegmentBLoop.csv")
-loopTwo = convertData(r"strategy_xv\benefitCostScore\data\SegmentDLoop.csv")
-loopThree = convertData(r"strategy_xv\benefitCostScore\data\SegmentELoop.csv")
-combined = convertData(r"strategy_xv\benefitCostScore\data\CombinedTest.csv")
+file_list = [r"data\SegmentBLoop.csv", r"data\SegmentDLoop.csv", r"data\SegmentELoop.csv", r"data\CombinedTest.csv"]
+combined = convertMultipleData(file_list)
+scored = scoreRankLoops(combined)
 
-print(loopOne)
-print(loopTwo)
-print(loopThree)
 print(combined)
+print(scored)

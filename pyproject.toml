@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "strategy_xv"
+version = "0.0.1"
+description = "Calculating how to run the optimal race for Midnight Sun"
+authors = ["uw-midsun"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+scipy = "^1.9.1"
+pyproj = "^3.4.0"
+pandas = "^1.5.1"
+geopy = "^2.2.0"
+geographiclib = "^2.0"
+matplotlib = "^3.6.2"
+numpy = "^1.23.5"
+pytest = "^7.2.0"
+python-dotenv = "^0.21.0"
+requests = "^2.28.1"
+sqlalchemy = "^1.4.44"
+mysql-connector-python = "^8.0.31"
+
+[tool.poetry.dev-dependencies]
+pandas = "^1.4.2"
+config = "^0.5.1"
+requests = "^2.27.1"
+pytest = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

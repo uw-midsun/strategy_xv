@@ -19,6 +19,6 @@ Given the information in the routebook (as an excel file), create a new excel fi
 
 ## What could not be done with just the excel file
 1. Determining the level of the turns is not possibel with just the excel file
-    * This is a metric that the team came up with and is not measured in the routebook
+    * This is a metric that the team came up with and is not measured in the routebook **This is possible; the turning angle is calculated in `get_coordinates`**
 2. Current status - how far off we are from the leader
-    * This depends on conditions during the race which is not possible to calculate just with the excel file
+    * This depends on conditions during the race which is not possible to calculate just with the excel file **Theortically possible if we know the approx coordinate of leader and if the route path never overlaps on itself**

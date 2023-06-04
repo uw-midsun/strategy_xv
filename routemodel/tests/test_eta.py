@@ -4,15 +4,15 @@ sys.path.append(os.path.dirname(sys.path[0]))
 
 import pytest
 import pandas as pd
-from eta.eta import ETA
+from eta.eta import ETAQuery
 
 
 """
-- Test eta functions from /eta/eta.py
+- Test ETAQuery functions from /eta/eta.py
 """
 
-
-coords = [
+# The tests assume that the route model and checkpoint data are generated from the following route
+ROUTE = [
     [43.46786317655638, -80.56637564010215],
     [43.48175280991097, -80.52637854159468],
     [43.48536483714299, -80.5270651870626],
@@ -24,18 +24,20 @@ coords = [
     [43.49196557034531, -80.53762236124682],
     [43.494347261633344, -80.5482439084337]
 ]
-eta = ETA(coords)
 
-# Tests if the eta object is properly segmenting the given race route
-def test_checkpoint_generation():
-    assert(isinstance(eta.checkpoint_coords, list) and len(eta.checkpoint_coords) == 7)
 
-# Tests if the eta object is returning the proper amount of arribal times
-def test_eta_times():
-    eta.update_checkpoint(43.46786317655638, -80.56637564010215, full_scan=True) # The checkpoint must be updated to get an accurate eta
-    arrival_times = eta.get_eta()
-    assert(isinstance(arrival_times, list) and len(arrival_times) == 7)
+# Tests if the eta query has the proper amount of checkpoints
+def test_eta_generation():
+    DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+    CHECKPOINT_MODEL_PATH = os.path.normpath(os.path.join(DIR_PATH, '../data/checkpoint_model_db.csv'))
+    checkpoint_model = pd.read_csv(CHECKPOINT_MODEL_PATH)
+    ETAQ = ETAQuery(43.48175280991097, -80.52637854159468)
+    times = ETAQ.get_times()
+
+    assert(len(times) == len(checkpoint_model))
 
 # Tests if the eta object can successfully update the car's location
-def test_location_update():
-    assert(eta.update_location())
+def test_eta_time_to_point():
+    ETAQ = ETAQuery(43.48175280991097, -80.52637854159468)
+    time_to_point = ETAQ.get_time_to_point(43.489910702452285, -80.53461828732458)
+    assert(type(time_to_point) == float and time_to_point > 0) 

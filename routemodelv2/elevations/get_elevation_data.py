@@ -17,19 +17,19 @@ from pandas import json_normalize
 #  Export as a new CSV
 
 sample_coordinates_df = pd.read_csv("sample_coordinates.csv")
-sample_coordinates_df['Combined'] = sample_coordinates_df.apply(lambda row: ','.join([str(row['latitude']), str(row['longitude'])]), axis=1)
-coords_list = sample_coordinates_df['Combined'].tolist()
+parameters_list = pd.series(sample_coordinates_df.apply(lambda row: ','.join([str(row['latitude']), str(row['longitude'])]), axis=1))
 
 elevation_data = []
-for item in coords_list:
-    response = requests.get(('https://api.opentopodata.org/v1/srtm30m?locations={}&&interpolation=bilinear'.format(item)))
-    if (response.status_code!=200):
-        print("error encountered at {item}")
-    response = response.json()
-    elevation_value=(response['results'][0]['elevation'])
-    elevation_data.append(elevation_value)
+for item in parameters_list:
+    try:
+        response = requests.get(('https://api.opentopodata.org/v1/srtm30m?locations={}&&interpolation=bilinear'.format(item)))
+        response.raise_for_status()
+        data = response.json()
+        elevation_value=(data['results'][0]['elevation'])
+        elevation_data.append(elevation_value)
+    except Exception as e:
+        print(f"Unexpected error encountered at {item}: ", e)
 
 sample_coordinates_df['elevation']=elevation_data
-del sample_coordinates_df['Combined']
 sample_coordinates_df.to_csv('appended_elevation_data.csv', index=False)
 
